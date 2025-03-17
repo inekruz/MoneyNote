@@ -1,7 +1,19 @@
-const express = require("express")
-const PORT = process.env.PORT || 3001
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const https = require('https');
+const fs = require('fs');
 const app = express();
+const port = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-    console.log(`Server listen - https://api.devsis.ru`)
-})
+app.use(cors());
+app.use(express.json());
+
+const options = {
+    key: fs.readFileSync('/etc/letsencrypt/live/api.devsis.ru/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/api.devsis.ru/fullchain.pem'),
+};
+
+https.createServer(options, app).listen(port, () => {
+    console.log(`Server listen to https://api.devsis.ru`);
+});
