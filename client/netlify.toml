@@ -3,6 +3,6 @@
   publish = "build"
 
 [[redirects]]
-  from = "/*"
-  to = "/"
-  status = 404
+from = "/ecommerce"
+to = "/"
+status = 404
