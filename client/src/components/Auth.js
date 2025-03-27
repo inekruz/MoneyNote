@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Notification, notif } from './notification';
+import './css/auth.css';
 
 const Auth = () => {
   const [isRegister, setIsRegister] = useState(false);
-  const [login, setLogin] = useState("");
+  const [identifier, setIdentifier] = useState(""); // Логин или email
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -13,12 +15,14 @@ const Auth = () => {
     e.preventDefault();
 
     if (isRegister && password !== confirmPassword) {
-      alert("Пароли не совпадают!");
+      notif("Пароли не совпадают!", "error");
       return;
     }
 
     const endpoint = isRegister ? "register" : "login";
-    const requestData = isRegister ? { login, email, password } : { login, password };
+    const requestData = isRegister
+      ? { login: identifier, email, password }
+      : { identifier, password };
 
     try {
       const response = await fetch(`https://api.devsis.ru/auth/${endpoint}`, {
@@ -34,38 +38,49 @@ const Auth = () => {
           localStorage.setItem("token", data.token);
           navigate("/");
         } else {
-          alert("Регистрация успешна! Теперь войдите в систему.");
+          notif("Регистрация успешна! Теперь войдите в систему.", "success");
           setIsRegister(false);
         }
       } else {
-        alert(data.error || "Ошибка сервера");
+        notif(data.error || "Ошибка сервера", "error");
       }
     } catch (error) {
       console.error("Ошибка:", error);
-      alert("Ошибка сети");
+      notif("Ошибка сети", "error");
     }
   };
 
   return (
     <div className="auth-container">
+      <Notification />
       <h2>{isRegister ? "Регистрация" : "Вход"}</h2>
       <form onSubmit={handleSubmit}>
-        {isRegister && (
+        {isRegister ? (
+          <>
+            <input
+              type="text"
+              placeholder="Логин"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              required
+            />
+            <input
+              type="email"
+              placeholder="E-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </>
+        ) : (
           <input
             type="text"
-            placeholder="Логин"
-            value={login}
-            onChange={(e) => setLogin(e.target.value)}
+            placeholder="Логин или E-mail"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
             required
           />
         )}
-        <input
-          type="email"
-          placeholder="E-mail"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required={isRegister}
-        />
         <input
           type="password"
           placeholder="Пароль"
