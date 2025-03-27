@@ -23,7 +23,7 @@ function App() {
       <div className="app">
         <Routes>
           <Route path="/auth" element={<Auth />} />
-          <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
         </Routes>
       </div>
     </Router>
