@@ -13,7 +13,7 @@ const pool = new Pool({
     port: process.env.DB_PORT,
 });
 
-const SECRET_KEY = process.env.SECRET_KEY || 'your_secret_key';
+const SECRET_KEY = process.env.SECRET_KEY || 'none';
 
 // Регистрация пользователя
 router.post('/register', async (req, res) => {
@@ -32,20 +32,25 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Авторизация пользователя
 router.post('/login', async (req, res) => {
-    const { login, password } = req.body;
+    const { identifier, password } = req.body;
 
     try {
-        const result = await pool.query('SELECT * FROM users WHERE login = $1', [login]);
+        // Определяем, что передал пользователь: email или логин
+        const isEmail = identifier.includes("@");
+        const field = isEmail ? "email" : "login";
+
+        const result = await pool.query(`SELECT * FROM users WHERE ${field} = $1`, [identifier]);
+
         if (result.rows.length === 0) {
-            return res.status(401).json({ error: 'Неверный логин или пароль' });
+            return res.status(401).json({ error: 'Неверный логин/email или пароль' });
         }
 
         const user = result.rows[0];
         const isValidPassword = await bcrypt.compare(password, user.password);
+
         if (!isValidPassword) {
-            return res.status(401).json({ error: 'Неверный логин или пароль' });
+            return res.status(401).json({ error: 'Неверный логин/email или пароль' });
         }
 
         const token = jwt.sign({ id: user.id, login: user.login }, SECRET_KEY, { expiresIn: '24h' });
@@ -55,5 +60,6 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ error: 'Ошибка при входе' });
     }
 });
+
 
 module.exports = router;
