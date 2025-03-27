@@ -5,18 +5,36 @@ import './css/auth.css';
 
 const Auth = () => {
   const [isRegister, setIsRegister] = useState(false);
-  const [identifier, setIdentifier] = useState(""); // Логин или email
+  const [identifier, setIdentifier] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
+  const validateLogin = (login) => /^[a-zA-Z0-9_]+$/.test(login);
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePassword = (password) => password.length >= 6 && password.length <= 30;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (isRegister && password !== confirmPassword) {
-      notif("Пароли не совпадают!", "error");
-      return;
+    if (isRegister) {
+      if (!validateLogin(identifier)) {
+        notif("Логин должен содержать только латинские буквы, цифры и _", "error");
+        return;
+      }
+      if (!validateEmail(email)) {
+        notif("Некорректный email", "error");
+        return;
+      }
+      if (!validatePassword(password)) {
+        notif("Пароль должен быть от 6 до 30 символов", "error");
+        return;
+      }
+      if (password !== confirmPassword) {
+        notif("Пароли не совпадают!", "error");
+        return;
+      }
     }
 
     const endpoint = isRegister ? "register" : "login";
