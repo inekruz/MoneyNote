@@ -28,14 +28,25 @@ function generateCode() {
 }
 
 async function sendVerificationEmail(email, code) {
-  const mailOptions = {
-    from: process.env.SMTP_EMAIL,
-    to: email,
-    subject: "Код подтверждения",
-    html: `<h2>Ваш код подтверждения: <b>${code}</b></h2><p>Введите его для завершения входа или регистрации.</p>`
-  };
-  await transporter.sendMail(mailOptions);
-}
+    const mailOptions = {
+      from: process.env.SMTP_EMAIL,
+      to: email,
+      subject: "Код подтверждения",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; text-align: center;">
+          <div style="max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+            <h2 style="color: #333;">Ваш код подтверждения</h2>
+            <p style="font-size: 16px; color: #555;">Введите этот код для завершения входа или регистрации:</p>
+            <div style="display: inline-block; padding: 10px 20px; font-size: 24px; font-weight: bold; color: #ffffff; background: #007bff; border-radius: 8px; letter-spacing: 2px;">
+              ${code}
+            </div>
+            <p style="margin-top: 20px; font-size: 14px; color: #777;">Этот код действителен в течение 10 минут.</p>
+          </div>
+        </div>
+      `
+    };
+    await transporter.sendMail(mailOptions);
+  }
 
 router.post("/register", async (req, res) => {
   const { login, email, password } = req.body;
