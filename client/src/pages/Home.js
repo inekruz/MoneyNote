@@ -1,21 +1,49 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import Header from "../components/Header";
+import Income from "./home_pages/Income";
+import Expenses from "./home_pages/Expenses";
+import Goals from "./home_pages/Goals";
+import Charts from "./home_pages/Charts";
+import Reports from "./home_pages/Reports";
+import Settings from "./home_pages/Settings";
 import './css/home.css';
 
 const Home = () => {
-  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('income');
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/auth");
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'income':
+        return <Income />;
+      case 'expenses':
+        return <Expenses />;
+      case 'goals':
+        return <Goals />;
+      case 'charts':
+        return <Charts />;
+      case 'reports':
+        return <Reports />;
+      case 'settings':
+        return <Settings />;
+      default:
+        return <div>Выберите опцию из меню</div>;
+    }
   };
 
   return (
     <div className="home-container">
-      <h1>Добро пожаловать!</h1>
-      <button onClick={handleLogout} className="logout-button">
-        Выйти
-      </button>
+      <Header />
+      <div className="navigation">
+        <button onClick={() => setActiveTab('income')}>Доходы</button>
+        <button onClick={() => setActiveTab('expenses')}>Расходы</button>
+        <button onClick={() => setActiveTab('goals')}>Цели</button>
+        <button onClick={() => setActiveTab('charts')}>Графики</button>
+        <button onClick={() => setActiveTab('reports')}>Отчеты</button>
+        <button onClick={() => setActiveTab('settings')}>Настройки</button>
+      </div>
+      <div className="content">
+        {renderContent()}
+      </div>
     </div>
   );
 };

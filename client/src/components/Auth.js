@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Notification, notif } from './notification';
-import './css/auth.css';
+import { Notification, notif } from "./notification";
+import "./css/auth.css";
 
 const Auth = () => {
   const [isRegister, setIsRegister] = useState(false);
@@ -9,34 +9,12 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
   const navigate = useNavigate();
-
-  const validateLogin = (login) => /^[a-zA-Z0-9_]+$/.test(login);
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const validatePassword = (password) => password.length >= 6 && password.length <= 30;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (isRegister) {
-      if (!validateLogin(identifier)) {
-        notif("Логин должен содержать только латинские буквы, цифры и _", "error");
-        return;
-      }
-      if (!validateEmail(email)) {
-        notif("Некорректный email", "error");
-        return;
-      }
-      if (!validatePassword(password)) {
-        notif("Пароль должен быть от 6 до 30 символов", "error");
-        return;
-      }
-      if (password !== confirmPassword) {
-        notif("Пароли не совпадают!", "error");
-        return;
-      }
-    }
-
     const endpoint = isRegister ? "register" : "login";
     const requestData = isRegister
       ? { login: identifier, email, password }
@@ -50,17 +28,32 @@ const Auth = () => {
       });
 
       const data = await response.json();
-
       if (response.ok) {
-        if (!isRegister) {
-          localStorage.setItem("token", data.token);
-          navigate("/");
-        } else {
-          notif("Регистрация успешна! Теперь войдите в систему.", "success");
-          setIsRegister(false);
-        }
+        setIsVerifying(true);
+        notif("Код отправлен на email", "success");
       } else {
         notif(data.error || "Ошибка сервера", "error");
+      }
+    } catch (error) {
+      console.error("Ошибка:", error);
+      notif("Ошибка сети", "error");
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    try {
+      const response = await fetch(`https://api.devsis.ru/auth/verify-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier, code: verificationCode }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem("token", data.token);
+        navigate("/");
+      } else {
+        notif(data.error || "Неверный код", "error");
       }
     } catch (error) {
       console.error("Ошибка:", error);
@@ -71,55 +64,73 @@ const Auth = () => {
   return (
     <div className="auth-container">
       <Notification />
-      <h2>{isRegister ? "Регистрация" : "Вход"}</h2>
-      <form onSubmit={handleSubmit}>
-        {isRegister ? (
-          <>
+      {!isVerifying ? (
+        <>
+          <h2>{isRegister ? "Регистрация" : "Вход"}</h2>
+          <form onSubmit={handleSubmit}>
+            {isRegister && (
+              <input
+                type="text"
+                placeholder="Логин"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                required
+              />
+            )}
             <input
               type="text"
-              placeholder="Логин"
+              placeholder={isRegister ? "E-mail" : "Логин или E-mail"}
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               required
             />
+            {isRegister && (
+              <input
+                type="email"
+                placeholder="E-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            )}
             <input
-              type="email"
-              placeholder="E-mail"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="password"
+              placeholder="Пароль"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
-          </>
-        ) : (
+            {isRegister && (
+              <input
+                type="password"
+                placeholder="Подтвердите пароль"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            )}
+            <button type="submit">{isRegister ? "Зарегистрироваться" : "Войти"}</button>
+          </form>
+        </>
+      ) : (
+        <div>
+          <h2>Подтвердите email</h2>
+          <p>Введите код, отправленный на вашу почту</p>
           <input
             type="text"
-            placeholder="Логин или E-mail"
-            value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
+            placeholder="Код подтверждения"
+            value={verificationCode}
+            onChange={(e) => setVerificationCode(e.target.value)}
             required
           />
-        )}
-        <input
-          type="password"
-          placeholder="Пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        {isRegister && (
-          <input
-            type="password"
-            placeholder="Подтвердите пароль"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-        )}
-        <button type="submit">{isRegister ? "Зарегистрироваться" : "Войти"}</button>
-      </form>
-      <p className="toggle-text" onClick={() => setIsRegister(!isRegister)}>
-        {isRegister ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться"}
-      </p>
+          <button onClick={handleVerifyCode}>Подтвердить</button>
+        </div>
+      )}
+      {!isVerifying && (
+        <p className="toggle-text" onClick={() => setIsRegister(!isRegister)}>
+          {isRegister ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться"}
+        </p>
+      )}
     </div>
   );
 };

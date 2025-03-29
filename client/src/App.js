@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import Auth from "./components/Auth";
 import Home from "./pages/Home";
+import Profile from "./pages/Profile";
 import "./App.css";
 
 const ProtectedRoute = ({ children }) => {
@@ -9,7 +10,7 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
+    if (!token) { // !token ( если сервер включен )
       navigate("/auth");
     }
   }, [navigate]);
@@ -24,6 +25,7 @@ function App() {
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         </Routes>
       </div>
     </Router>

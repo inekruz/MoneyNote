@@ -1,0 +1,14 @@
+.income-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100%;
+    color: white;
+    font-size: 25px;
+}
+
+.lottie-player {
+    width: 400px;
+    height: 400px;
+  }

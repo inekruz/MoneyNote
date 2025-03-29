@@ -1,0 +1,74 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 15px;
+    background: rgba(39, 39, 71, 0.56);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px);
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+  }
+  
+  .logo {
+    cursor: pointer;
+    font-size: 25px;
+    align-items: center;
+    margin-top: 5px;
+  }
+  
+  .header-buttons {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+  }
+  
+  .profile-button, .logout-button {
+    background-color: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .profile-button:hover, .logout-button:hover {
+    opacity: 0.8;
+  }
+
+  .profile-button {
+    padding: 5px 20px;
+    background-color: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 25px;
+  }
+  
+  .profile-button:hover {
+    background-color: transparent;
+  }
+  
+  .profile-button:focus {
+    outline: none;
+  }
+
+  .logout-button {
+    padding: 5px 20px;
+    background-color: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 25px;
+  }
+  
+  .logout-button:hover {
+    background-color: transparent;
+  }
+  
+  .logout-button:focus {
+    outline: none;
+  }
