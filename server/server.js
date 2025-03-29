@@ -3,6 +3,7 @@ const cors = require('cors');
 const https = require('https');
 const fs = require('fs');
 const authRoutes = require('./routes/auth');
+const InExpRoutes = require('./routes/incomeExp');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -10,6 +11,7 @@ const port = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 app.use('/auth', authRoutes);
+app.use('/inex', InExpRoutes);
 
 const options = {
     key: fs.readFileSync('/etc/letsencrypt/live/api.devsis.ru/privkey.pem'),
