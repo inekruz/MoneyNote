@@ -43,8 +43,8 @@ router.post("/add", async (req, res) => {
 });
 
 // Получение всех операций с фильтрацией и добавлением названия категории
-router.get("/transactions", async (req, res) => {
-    const { type, startDate, endDate, categoryId } = req.query;
+router.post("/transactions", async (req, res) => {
+    const { type, startDate, endDate, categoryId } = req.body;  // Получаем данные из тела запроса
   
     let query = `
       SELECT t.*, c.name AS category_name 
@@ -54,6 +54,7 @@ router.get("/transactions", async (req, res) => {
     `;
     const params = [];
   
+    // Добавление фильтров в запрос
     if (type) {
       query += " AND t.type = $1";
       params.push(type);
@@ -75,6 +76,5 @@ router.get("/transactions", async (req, res) => {
       res.status(500).json({ error: "Ошибка получения данных" });
     }
   });
-  
 
 module.exports = router;
