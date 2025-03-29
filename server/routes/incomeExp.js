@@ -42,9 +42,8 @@ router.post("/add", async (req, res) => {
   }
 });
 
-// Получение всех операций с фильтрацией и добавлением названия категории
 router.post("/transactions", async (req, res) => {
-    const { type, startDate, endDate, categoryId } = req.body;  // Получаем данные из тела запроса
+    const { type, startDate, endDate, categoryId } = req.body;
   
     let query = `
       SELECT t.*, c.name AS category_name 
@@ -53,28 +52,32 @@ router.post("/transactions", async (req, res) => {
       WHERE 1=1
     `;
     const params = [];
+    let paramIndex = 1; // Индексация параметров для SQL-запроса
   
-    // Добавление фильтров в запрос
     if (type) {
-      query += " AND t.type = $1";
+      query += ` AND t.type = $${paramIndex}`;
       params.push(type);
+      paramIndex++;
     }
     if (startDate && endDate) {
-      query += " AND t.date BETWEEN $2 AND $3";
+      query += ` AND t.date BETWEEN $${paramIndex} AND $${paramIndex + 1}`;
       params.push(startDate, endDate);
+      paramIndex += 2;
     }
     if (categoryId) {
-      query += " AND t.category_id = $4";
+      query += ` AND t.category_id = $${paramIndex}`;
       params.push(categoryId);
+      paramIndex++;
     }
   
     try {
       const result = await pool.query(query, params);
       res.status(200).json(result.rows);
     } catch (err) {
-      console.error(err);
+      console.error("Ошибка при запросе в БД:", err);
       res.status(500).json({ error: "Ошибка получения данных" });
     }
   });
+  
 
 module.exports = router;
