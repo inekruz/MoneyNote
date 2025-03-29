@@ -42,33 +42,39 @@ router.post("/add", async (req, res) => {
   }
 });
 
-// Получение всех операций с фильтрацией
+// Получение всех операций с фильтрацией и добавлением названия категории
 router.get("/transactions", async (req, res) => {
-  const { type, startDate, endDate, categoryId } = req.query;
-
-  let query = "SELECT * FROM transactions WHERE 1=1";
-  const params = [];
-
-  if (type) {
-    query += " AND type = $1";
-    params.push(type);
-  }
-  if (startDate && endDate) {
-    query += " AND date BETWEEN $2 AND $3";
-    params.push(startDate, endDate);
-  }
-  if (categoryId) {
-    query += " AND category_id = $4";
-    params.push(categoryId);
-  }
-
-  try {
-    const result = await pool.query(query, params);
-    res.status(200).json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Ошибка получения данных" });
-  }
-});
+    const { type, startDate, endDate, categoryId } = req.query;
+  
+    let query = `
+      SELECT t.*, c.name AS category_name 
+      FROM transactions t
+      LEFT JOIN expense_categories c ON t.category_id = c.id
+      WHERE 1=1
+    `;
+    const params = [];
+  
+    if (type) {
+      query += " AND t.type = $1";
+      params.push(type);
+    }
+    if (startDate && endDate) {
+      query += " AND t.date BETWEEN $2 AND $3";
+      params.push(startDate, endDate);
+    }
+    if (categoryId) {
+      query += " AND t.category_id = $4";
+      params.push(categoryId);
+    }
+  
+    try {
+      const result = await pool.query(query, params);
+      res.status(200).json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Ошибка получения данных" });
+    }
+  });
+  
 
 module.exports = router;
