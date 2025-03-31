@@ -10,6 +10,8 @@
   -webkit-backdrop-filter: blur(6.4px);
   border: 1px solid rgba(34, 104, 167, 0.42);   
   color: white; 
+  max-height: 670px;
+  overflow-y: scroll;
 }
 
 .income-title {
