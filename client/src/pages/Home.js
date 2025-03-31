@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Header from "../components/Header";
-import Income from "./home_pages/Income";
-import Expenses from "./home_pages/Expenses";
+import IncomeExpense from "./home_pages/IncomeExp";
 import Goals from "./home_pages/Goals";
 import Charts from "./home_pages/Charts";
 import Reports from "./home_pages/Reports";
@@ -14,9 +13,7 @@ const Home = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'income':
-        return <Income />;
-      case 'expenses':
-        return <Expenses />;
+        return <IncomeExpense />;
       case 'goals':
         return <Goals />;
       case 'charts':
@@ -34,10 +31,9 @@ const Home = () => {
     <div className="home-container">
       <Header />
       <div className="navigation">
-        <button onClick={() => setActiveTab('income')}>Доходы</button>
-        <button onClick={() => setActiveTab('expenses')}>Расходы</button>
-        <button onClick={() => setActiveTab('goals')}>Цели</button>
+        <button onClick={() => setActiveTab('income')}>Доходы & Расходы</button>
         <button onClick={() => setActiveTab('charts')}>Графики</button>
+        <button onClick={() => setActiveTab('goals')}>Цели</button>
         <button onClick={() => setActiveTab('reports')}>Отчеты</button>
         <button onClick={() => setActiveTab('settings')}>Настройки</button>
       </div>

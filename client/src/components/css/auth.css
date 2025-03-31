@@ -73,3 +73,27 @@ button:hover {
         font-size: 14px;
     }
 }
+
+.code-input-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.code-input {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    text-align: center;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    outline: none;
+    transition: 0.3s;
+}
+
+.code-input:focus {
+    background: rgba(255, 255, 255, 0.25);
+}
