@@ -1,10 +1,9 @@
 .income-page {
   padding: 30px;
-  border-radius: 12px;
   width: 90%;
   margin: 20px auto;
   background: rgba(34, 104, 167, 0.39);
-  border-radius: 20px;
+  border-radius: 10px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(6.4px);
   -webkit-backdrop-filter: blur(6.4px);
@@ -12,6 +11,24 @@
   color: white; 
   max-height: 670px;
   overflow-y: scroll;
+}
+
+.income-page::-webkit-scrollbar {
+  width: 12px;
+}
+
+.income-page::-webkit-scrollbar-thumb {
+  background-color: #04cbda;
+  border-radius: 10px;
+}
+
+.income-page::-webkit-scrollbar-track {
+  background-color: transparent;
+  border-radius: 12px;
+}
+
+.income-page::-webkit-scrollbar-thumb:hover {
+  background-color: #06edfd;
 }
 
 .income-title {
@@ -125,7 +142,8 @@ lottie-player {
   justify-content: space-between;
   align-items: center;
   padding: 12px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 2px solid #e0e0e0;
+  border-radius: 15px;
   font-size: 14px;
 }
 
@@ -189,4 +207,22 @@ lottie-player {
 .transaction-header-text {
   flex: 1;
   text-align: center;
+}
+
+.transaction-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.transaction-header,
+.transaction-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  align-items: center;
+  text-align: center;
+}
+
+.transaction-header-text,
+.transaction-text {
+  padding: 8px;
 }

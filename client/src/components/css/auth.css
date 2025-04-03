@@ -1,7 +1,6 @@
 .auth-container {
     padding: 40px;
     background: rgba(44, 44, 84, 0.56);
-    border-radius: 16px;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(9px);
     -webkit-backdrop-filter: blur(9px);
@@ -10,6 +9,21 @@
     color: white;
     width: 100%;
     max-width: 400px;
+    border-image: conic-gradient(from var(--angle), aqua, transparent, transparent, aqua, transparent, transparent, aqua) 1;
+	
+	animation: 1s rotate linear infinite;
+}
+
+@keyframes rotate {
+	to {
+		--angle: -360deg;
+	}
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
 }
 
 .auth-container h2 {
