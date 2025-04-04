@@ -10,7 +10,7 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) { // !token ( если сервер включен )
+    if (token) { // !token ( если сервер включен )
       navigate("/auth");
     }
   }, [navigate]);
