@@ -1,12 +1,11 @@
 .auth-container {
     padding: 40px;
-    background: rgba(44, 44, 84, 0.56);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    background: var(--secondary-color);
     backdrop-filter: blur(9px);
     -webkit-backdrop-filter: blur(9px);
     border: 1px solid rgba(44, 44, 84, 0.73);
     text-align: center;
-    color: white;
+    color: var(--text-color);
     width: 100%;
     max-width: 400px;
     border-image: conic-gradient(from var(--angle), aqua, transparent, transparent, aqua, transparent, transparent, aqua) 1;
@@ -36,43 +35,46 @@ input {
     margin: 10px 0;
     border: none;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.15);
-    color: white;
+    background: var(--ternary-color);
+    color: var(--text-color);
     outline: none;
     transition: 0.3s;
     text-align: start;
 }
 
 input:focus {
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--quaternary-color);
 }
 
+input::placeholder {
+    color: var(--text-color);
+}
 button {
     width: 100%;
     padding: 12px;
     margin-top: 15px;
     border: none;
     border-radius: 8px;
-    background: #2d609e;
-    color: white;
+    background:var(--button-color);
+    color: var(--text-color);
     cursor: pointer;
     transition: 0.3s;
 }
 
 button:hover {
-    background: #3876c2;
+    background: var(--button-hover-color);
 }
 
 .toggle-text {
     margin-top: 15px;
     font-size: 14px;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-color);
     transition: 0.3s;
 }
 
 .toggle-text:hover {
-    color: white;
+    color: var(--text-color);
 }
 
 @media (max-width: 480px) {
@@ -102,12 +104,12 @@ button:hover {
     text-align: center;
     border: none;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.15);
-    color: white;
+    background: var(--ternary-color);
+    color: var(--text-color);
     outline: none;
     transition: 0.3s;
 }
 
 .code-input:focus {
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--quaternary-color);
 }

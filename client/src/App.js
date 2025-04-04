@@ -4,14 +4,13 @@ import Auth from "./components/Auth";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import "./App.css";
-import AnimatedBackground from './components/AnimatedBackground';
 
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) { // !token ( если сервер включен )
+    if (token) { // !token ( если сервер включен )
       navigate("/auth");
     }
   }, [navigate]);
@@ -23,7 +22,6 @@ function App() {
   return (
     <Router>
       <div className="app">
-      <AnimatedBackground />
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />

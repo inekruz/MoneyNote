@@ -16,28 +16,33 @@
   height: 70px;
   width: 95%;
   align-items: center;
-  background: rgba(34, 104, 167, 0.39);
+  background: var(--secondary-color);
   border-radius: 20px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(6.4px);
   -webkit-backdrop-filter: blur(6.4px);
-  border: 1px solid rgba(34, 104, 167, 0.42);
+  border: none;   
 }
 
 .navigation button {
-  padding: 13px;
-  margin: 0 7px;
-  font-size: 1rem;
+  padding: 20px;
+  margin: 0 5px;
+  font-weight: bold;
+  font-size: 15px;
   cursor: pointer;
   border: none;
-  border-radius: 5px;
+  border-radius: 14px;
   background-color: transparent;
-  color: white;
+  color: var(--text-color);
   transition: background-color 0.3s, transform 0.3s;
+
+  @media (max-width: 1050px) {
+    font-size: 13.5px;
+}
 }
 
 .navigation button:hover {
-  background: rgba(41, 129, 208, 0.39);
+  background: var(--button-color);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(6.4px);
   -webkit-backdrop-filter: blur(6.4px);

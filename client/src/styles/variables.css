@@ -1,7 +1,11 @@
 :root {
-    --primary-color: #000000;
-    --secondary-color: #14213D;
-    --ternary-color: #FCA311;
-    --quaternary-color: #E5E5E5;
-    --text-color: #FFFFFF;
+    --primary-color: #1c1e24; /* Основной фон */
+    --secondary-color: #2a2d34; /* Вторичный фон */
+    --ternary-color: #3a3d44; /* Третичный фон */
+    --quaternary-color: #4b4e56; /* Четвертичный фон */
+    --button-color: #0078d4; /* Цвет кнопок */
+    --button-hover-color: #005a9e; /* Цвет кнопок при наведении */
+    --text-color: #ffffff; /* Цвет текста */
+    --link-color: #1a73e8; /* Цвет ссылок */
+    --border-color: #848994; /* Цвет границ */
 }

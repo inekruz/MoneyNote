@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import './css/income.css';
+import { Notification, notif } from "../../components/notification";
 
 const Income = () => {
   const [transactions, setTransactions] = useState([]);
@@ -14,7 +15,7 @@ const Income = () => {
     fetch('https://api.devsis.ru/inex/categories')
       .then(response => response.json())
       .then(data => setCategories(data))
-      .catch(error => console.error("Error fetching categories:", error));
+      .catch(error => notif(`${error}`, "error"));
   }, []);
 
   useEffect(() => {
@@ -27,7 +28,7 @@ const Income = () => {
       .then(response => response.json())
       .then(data => setTransactions(Array.isArray(data) ? data : []))
       .catch(error => {
-        console.error("Error fetching transactions:", error);
+        notif(`${error}`, "error");
         setTransactions([]);
       });
   }, [filter]);
@@ -35,7 +36,7 @@ const Income = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (amount <= 0) {
-      alert("Сумма должна быть положительной!");
+      notif("Сумма должна быть положительной!", "error");
       return;
     }
     const data = { type, amount, description, category_id: category };
@@ -50,8 +51,9 @@ const Income = () => {
         setAmount('');
         setDescription('');
         setCategory('');
+        window.location.reload();
       })
-      .catch(error => console.error("Error adding transaction:", error));
+      .catch(error => notif(`${error}`, "error"));
   };
 
   const handleFilterChange = (e) => {
@@ -72,8 +74,8 @@ const Income = () => {
 
   return (
     <div className="income-page">
+      <Notification />
       <h2 className="income-title">Доходы & Расходы</h2>
-
       <form className="transaction-form">
         <div className="form-row">
           <label className="form-label">Тип<br />
