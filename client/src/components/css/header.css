@@ -20,12 +20,13 @@
     font-size: 25px;
     align-items: center;
     margin-top: 5px;
+    margin-left: 30px;
   }
   
   .header-buttons {
     display: flex;
     align-items: center;
-    margin-right: 15px;
+    margin-right: 25px;
   }
   
   .profile-button, .logout-button {
@@ -40,7 +41,7 @@
   }
 
   .profile-button {
-    padding: 5px 20px;
+    padding: 5px 10px;
     background-color: transparent;
     color: var(--text-color);
     border: none;
@@ -57,7 +58,7 @@
   }
 
   .logout-button {
-    padding: 5px 20px;
+    padding: 5px 30px;
     background-color: transparent;
     color: var(--text-color);
     border: none;
