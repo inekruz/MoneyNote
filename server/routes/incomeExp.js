@@ -43,7 +43,7 @@ router.post("/add", async (req, res) => {
 });
 
 // Получение всех транзакций
-router.post("/alltransactions", async (req, res) => {
+router.get("/alltransactions", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM transactions");
     res.status(200).json(result.rows);
