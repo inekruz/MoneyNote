@@ -13,9 +13,18 @@ const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#ff6666', '#66cccc'
 const Charts = () => {
   const [categories, setCategories] = useState([]);
   const [transactions, setTransactions] = useState([]);
+  const [allTransactions, setAllTransactions] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [adviceText, setAdviceText] = useState('');
+
+  // Глобальные транзакции (все)
+  const fetchAllTransactions = async () => {
+    const res = await fetch('https://api.devsis.ru/inex/alltransactions');
+    const data = await res.json();
+    setAllTransactions(data);
+  };
 
   const fetchCategories = async () => {
     const res = await fetch('https://api.devsis.ru/inex/categories');
@@ -39,43 +48,122 @@ const Charts = () => {
 
   useEffect(() => {
     fetchCategories();
+    fetchAllTransactions();
   }, []);
 
   useEffect(() => {
     fetchTransactions();
   }, [fetchTransactions]);
 
+  // 📊 Расчёт общего баланса (используем все транзакции)
+  const totalIncome = allTransactions
+    .filter(tx => tx.type === 'income')
+    .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+
+  const totalExpense = allTransactions
+    .filter(tx => tx.type === 'expense')
+    .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+
+  const balance = Math.max(0, totalIncome - totalExpense);
+
+  // 🧠 Теханализ и советы (используем отфильтрованные транзакции)
+  useEffect(() => {
+    if (transactions.length === 0) return;
+
+    const income = transactions
+      .filter(tx => tx.type === 'income')
+      .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+
+    const expense = transactions
+      .filter(tx => tx.type === 'expense')
+      .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+
+    const rawBalance = income - expense;
+
+    // Анализ расходов по категориям
+    const expenseCategories = transactions
+      .filter(tx => tx.type === 'expense')
+      .reduce((acc, tx) => {
+        const category = tx.category_name || tx.category?.name || tx.category || 'Без категории';
+        const amount = parseFloat(tx.amount);
+        if (isNaN(amount)) return acc;
+
+        acc[category] = acc[category] || { name: category, value: 0 };
+        acc[category].value += amount;
+        return acc;
+      }, {});
+
+    const highExpenseCategories = Object.values(expenseCategories)
+      .filter(cat => cat.value > expense * 0.25)
+      .sort((a, b) => b.value - a.value);
+
+    // Генерация совета
+    const generateFinancialAdvice = () => {
+      const advice = [];
+
+      const savingsRate = income > 0 ? ((income - expense) / income) * 100 : 0;
+      const expenseRate = income > 0 ? (expense / income) * 100 : 0;
+
+      if (rawBalance < 0) {
+        advice.push(`❗ Ваши расходы превышают доходы на ${Math.abs(rawBalance).toFixed(2)} ₽.`);
+      } else if (rawBalance === 0) {
+        advice.push("⚠️ Баланс на нуле. Пересмотрите расходы и доходы.");
+      } else {
+        advice.push(`✅ Положительный баланс: ${rawBalance.toFixed(2)} ₽.`);
+      }
+
+      if (savingsRate < 10) {
+        advice.push("💡 Вы сохраняете менее 10% доходов. Попробуйте хотя бы 20%.");
+      } else if (savingsRate > 30) {
+        advice.push("👏 Отличная дисциплина — более 30% доходов сохраняются.");
+      }
+
+      if (highExpenseCategories.length > 0) {
+        const categoriesList = highExpenseCategories
+          .map(cat => `${cat.name} (${cat.value.toFixed(0)} ₽)`)
+          .join(', ');
+        advice.push(`🔍 Основные траты: ${categoriesList}.`);
+      }
+
+      if (expenseRate > 90) {
+        advice.push("🚨 Вы тратите почти весь доход. Попробуйте составить бюджет.");
+      }
+
+      if (income === 0) {
+        advice.push("📉 Доходы отсутствуют. Найдите источник дохода.");
+      }
+
+      return advice;
+    };
+
+    const finalAdvice = generateFinancialAdvice();
+    setAdviceText(finalAdvice.join('\n'));
+  }, [transactions]);
+
   const chartData = transactions.map(tx => ({
-    date: format(parseISO(tx.date), 'dd.MM.yyyy'),
+    date: format(parseISO(tx.date), 'dd.MM.yy'),
     amount: tx.amount,
     category: tx.category_name,
   }));
 
-
   const totalTransactions = transactions.length;
   const totalAmount = transactions.reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
-
 
   const pieData = Object.values(
     transactions.reduce((acc, tx) => {
       const category = tx.category_name || 'Неизвестно';
       const amount = parseFloat(tx.amount);
       if (isNaN(amount)) return acc;
-  
+
       acc[category] = acc[category] || { name: category, value: 0 };
       acc[category].value += amount;
       return acc;
     }, {})
   );
-  
+
   return (
     <div className="charts-container">
       <h2>📊 Графики и диаграммы</h2>
-
-      <div className="summary">
-        <p>Транзакций: {totalTransactions}</p>
-        <p>Суммарно: {totalAmount.toFixed(2)} ₽</p>
-      </div>
 
       <div className="filters">
         <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
@@ -89,7 +177,19 @@ const Charts = () => {
         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
       </div>
 
-      {/* Пончик */}
+      <div className="summary">
+        <p>Транзакций: {totalTransactions}</p>
+        <p>Суммарно: {totalAmount.toFixed(2)} ₽</p>
+        <p>💰 Текущий баланс: {balance.toFixed(2)} ₽</p>
+      </div>
+
+      {adviceText && (
+        <div className="summary" style={{ whiteSpace: 'pre-wrap', marginTop: '1rem' }}>
+          <strong>📌 Рекомендации:</strong>
+          <p>{adviceText}</p>
+        </div>
+      )}
+
       {pieData.length > 0 && (
         <motion.div
           className="donut-chart"
@@ -127,7 +227,6 @@ const Charts = () => {
         </motion.div>
       )}
 
-      {/* Линейный график */}
       <motion.div
         className="chart-wrapper"
         initial={{ opacity: 0, y: 30 }}
@@ -136,36 +235,31 @@ const Charts = () => {
       >
         {chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={350}>
-              <AreaChart
-                data={chartData}
-                margin={{ top: 10, right: 20, left: 0, bottom: 40 }}
-              >
-                <defs>
-                  <linearGradient id="colorAmt" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0078d4" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#0078d4" stopOpacity={0.1} />
-                  </linearGradient>
-                </defs>
-
-                <XAxis
-                  dataKey="date"
-                  stroke="#ffffff"
-                  label={{ value: 'Дата', position: 'insideBottom', offset: -20, fill: '#ffffff' }}
-                />
-                <YAxis
-                  stroke="#ffffff"
-                  label={{ value: 'Сумма (₽)', angle: -90, position: 'insideLeft', offset: 10, fill: '#ffffff' }}
-                />
-                <Tooltip
-                  formatter={(value) => [`${value} ₽`, 'Сумма']}
-                  contentStyle={{ backgroundColor: '#2a2d34', borderColor: '#848994' }}
-                />
-                <CartesianGrid stroke="#3a3d44" strokeDasharray="3 3" />
-                <Area type="monotone" dataKey="amount" stroke="#0078d4" fill="url(#colorAmt)" />
-              </AreaChart>
-            </ResponsiveContainer>
+            <AreaChart
+              data={chartData}
+              margin={{ top: 10, right: 20, left: 0, bottom: 40 }}
+            >
+              <defs>
+                <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1" spreadMethod="pad">
+                  <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Area
+                type="monotone"
+                dataKey="amount"
+                stroke="#8884d8"
+                fillOpacity={1}
+                fill="url(#colorBalance)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         ) : (
-          <p className="no-data">Нет данных для отображения</p>
+          <p>Нет транзакций для отображения</p>
         )}
       </motion.div>
     </div>

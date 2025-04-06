@@ -55,7 +55,6 @@
     border-radius: 0.5rem;
   }
 
-  
   .no-data {
     text-align: center;
     color: var(--border-color);
@@ -78,12 +77,13 @@
   
   .summary {
     background-color: var(--ternary-color);
-    width: 250px;
+    width: 90%;
     justify-content: center;
     display: flex;
     margin: 0 auto;
     flex-direction: column;
     text-align: center;
+    padding: 10px;
     margin-bottom: 1.5rem;
     font-size: 1.1rem;
     border-radius: 20px;
