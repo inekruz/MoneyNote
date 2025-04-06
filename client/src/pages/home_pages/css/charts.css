@@ -95,3 +95,29 @@
     font-weight: 500;
   }
   
+  .multi-select {
+    min-width: 250px;
+    font-size: 1rem;
+  }
+  
+  .select__control {
+    background-color: var(--ternary-color);
+    color: var(--text-color);
+    border: none;
+  }
+  
+  .select__menu {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+  }
+  
+  .select__option {
+    color: var(--text-color);
+    cursor: pointer;
+  }
+  
+  .select__multi-value {
+    background-color: var(--border-color);
+    color: var(--text-color);
+  }
+  

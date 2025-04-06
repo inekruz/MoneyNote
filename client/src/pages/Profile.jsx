@@ -6,7 +6,6 @@ import './css/profile.css';
 const Profile = () => {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState("");
-  const [_, setNewAvatar] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
 
   useEffect(() => {
@@ -73,7 +72,6 @@ const Profile = () => {
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      setNewAvatar(file);
       const reader = new FileReader();
       reader.onloadend = async () => {
         setAvatarPreview(reader.result);

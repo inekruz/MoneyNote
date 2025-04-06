@@ -210,7 +210,7 @@ const Charts = () => {
                 dataKey="value"
                 labelLine={false}
                 label={({ percent, value }) =>
-                  `${(percent * 100).toFixed(0)}% (${value.toFixed(0)} ₽)`
+                  `${(percent * 100).toFixed(2)}% (${value.toFixed(1)} ₽)`
                 }
               >
                 {pieData.map((_, index) => (
