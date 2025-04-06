@@ -41,7 +41,7 @@ router.get("/getUser", (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
   
     if (!token) {
-      return res.status(400).json({ error: "Token is required" });
+      return res.status(400).json({ error: "Токен не найден" });
     }
   
     // Проверка и расшифровка токена
@@ -54,12 +54,12 @@ router.get("/getUser", (req, res) => {
   
       try {
         const result = await pool.query(
-          'SELECT login, email, image_path FROM users WHERE login = $1',
+          'SELECT * FROM users WHERE login = $1',
           [login]
         );
   
         if (result.rows.length === 0) {
-          return res.status(404).json({ error: "User not found" });
+          return res.status(404).json({ error: "Пользователь не найден" });
         }
   
         const userData = result.rows[0];
