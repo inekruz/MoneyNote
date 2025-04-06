@@ -1,9 +1,11 @@
-require("dotenv").config();
-const express = require("express");
-const jwt = require("jsonwebtoken");
-const { Pool } = require("pg");
-
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
+const { Pool } = require('pg');
 const router = express.Router();
+
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
