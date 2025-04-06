@@ -6,6 +6,7 @@ const multer = require('multer');
 const { Pool } = require('pg');
 const router = express.Router();
 const nodemailer = require("nodemailer");
+const bcrypt = require("bcrypt");
 
 const pool = new Pool({
   user: process.env.DB_USER,
