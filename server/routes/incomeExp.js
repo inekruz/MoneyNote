@@ -42,6 +42,18 @@ router.post("/add", async (req, res) => {
   }
 });
 
+// Получение всех транзакций
+router.post("/alltransactions", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM transactions");
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Ошибка получения всех категорий" });
+  }
+});
+
+// Получение транзакций с фильтрацией 
 router.post("/transactions", async (req, res) => {
     const { type, startDate, endDate, categoryId } = req.body;
   
