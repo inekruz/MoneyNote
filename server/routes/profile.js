@@ -107,15 +107,11 @@ router.get("/getUser", (req, res) => {
     });
   });
   
-// Обновление данных о пользователе
-  router.post("/updUser", async (req, res) => {
-    const { email, name, password } = req.body;
-  
-    if (!email || !name || !password) {
-      return res.status(400).json({ error: "Все поля обязательны" });
-    }
-
+// Обновление данных пользователя и подтверждение через код
+router.post("/updUser", async (req, res) => {
+    const { email, name, password, code } = req.body;
     const token = req.headers.authorization?.split(" ")[1];
+  
     if (!token) return res.status(400).json({ error: "Токен не найден" });
   
     jwt.verify(token, SECRET_KEY, async (err, decoded) => {
@@ -131,37 +127,14 @@ router.get("/getUser", (req, res) => {
   
         const user = result.rows[0];
   
-        const verificationCode = generateCode();
-  
-        await pool.query('UPDATE users SET verification_code = $1 WHERE id = $2', [verificationCode, user.id]);
-  
-        await sendVerificationEmail(email, verificationCode);
-  
-        res.status(200).json({ message: "На вашу почту отправлен код подтверждения" });
-  
-      } catch (err) {
-        console.error('Ошибка при отправке кода:', err);
-        return res.status(500).json({ error: "Ошибка сервера" });
-      }
-    });
-  });
-  
-  router.post("/verify-code", async (req, res) => {
-    const { code } = req.body;
-    const token = req.headers.authorization?.split(" ")[1];
-    
-    if (!token) return res.status(400).json({ error: "Токен не найден" });
-
-    jwt.verify(token, SECRET_KEY, async (err, decoded) => {
-      if (err) return res.status(403).json({ error: "Ошибка токена" });
-  
-      const { login } = decoded;
-  
-      try {
-        const result = await pool.query('SELECT * FROM users WHERE login = $1', [login]);
-        if (result.rows.length === 0) return res.status(400).json({ error: "Пользователь не найден" });
-  
-        const user = result.rows[0];
+        if (!code) {
+          const verificationCode = generateCode();
+          await pool.query('UPDATE users SET verification_code = $1 WHERE id = $2', [verificationCode, user.id]);
+          
+          await sendVerificationEmail(email, verificationCode);
+          
+          return res.status(200).json({ message: "На вашу почту отправлен код подтверждения" });
+        }
   
         if (user.verification_code !== code) {
           return res.status(400).json({ error: "Неверный код" });
@@ -169,22 +142,24 @@ router.get("/getUser", (req, res) => {
   
         await pool.query("UPDATE users SET verification_code = NULL WHERE id = $1", [user.id]);
   
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        let hashedPassword = user.password;
+        if (password) {
+          hashedPassword = await bcrypt.hash(password, 10);
+        }
+  
         await pool.query(
           `UPDATE users SET email = $1, name = $2, password = $3 WHERE login = $4`,
-          [req.body.email, req.body.name, hashedPassword, login]
+          [email, name, hashedPassword, login]
         );
   
-        const newToken = jwt.sign({ id: user.id, login: user.login }, SECRET_KEY, { expiresIn: "24h" });
-        res.json({ message: "Данные успешно обновлены", token: newToken });
+        res.json({ message: "Данные успешно обновлены"});
   
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Ошибка подтверждения кода" });
+      } catch (err) {
+        console.error('Ошибка при обновлении данных:', err);
+        return res.status(500).json({ error: "Ошибка сервера" });
       }
     });
   });
-
   
 // Обновление аватарки пользователя
   router.post("/setAvatar", upload.single('avatar'), (req, res) => {
