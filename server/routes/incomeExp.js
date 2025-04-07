@@ -25,47 +25,89 @@ router.get("/categories", async (req, res) => {
 // Добавление дохода или расхода
 router.post("/add", async (req, res) => {
   const { type, amount, description, category_id } = req.body;
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(400).json({ error: "Токен не найден" });
+  }
 
   if (amount <= 0) {
     return res.status(400).json({ error: "Сумма должна быть положительной!" });
   }
 
-  try {
-    const result = await pool.query(
-      "INSERT INTO transactions (type, amount, description, category_id) VALUES ($1, $2, $3, $4) RETURNING *",
-      [type, amount, description, category_id]
-    );
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Ошибка добавления данных" });
-  }
+  jwt.verify(token, SECRET_KEY, async (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ error: "Ошибка при обработке токена" });
+    }
+
+    const { login } = decoded;
+
+    try {
+      const result = await pool.query(
+        `INSERT INTO transactions (type, amount, description, category_id, ulogin)
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING *`,
+        [type, amount, description, category_id, login]
+      );
+      res.status(201).json(result.rows[0]);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Ошибка добавления данных" });
+    }
+  });
 });
+
 
 // Получение всех транзакций
 router.get("/alltransactions", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM transactions");
-    res.status(200).json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Ошибка получения всех категорий" });
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(400).json({ error: "Токен не найден" });
   }
+
+  jwt.verify(token, SECRET_KEY, async (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ error: "Ошибка при обработке токена" });
+    }
+
+    const { login } = decoded;
+
+    try {
+      const result = await pool.query("SELECT * FROM transactions WHERE ulogin = $1", [login]);
+      res.status(200).json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Ошибка получения всех категорий" });
+    }
+  });
 });
 
 // Получение транзакций с фильтрацией 
 router.post("/transactions", async (req, res) => {
-    const { type, startDate, endDate, categoryId } = req.body;
-  
+  const { type, startDate, endDate, categoryId } = req.body;
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(400).json({ error: "Токен не найден" });
+  }
+
+  jwt.verify(token, SECRET_KEY, async (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ error: "Ошибка при обработке токена" });
+    }
+
+    const { login } = decoded;
+
     let query = `
       SELECT t.*, c.name AS category_name 
       FROM transactions t
       LEFT JOIN expense_categories c ON t.category_id = c.id
-      WHERE 1=1
+      WHERE t.ulogin = $1
     `;
-    const params = [];
-    let paramIndex = 1; // Индексация параметров для SQL-запроса
-  
+    const params = [login];
+    let paramIndex = 2;
+
     if (type) {
       query += ` AND t.type = $${paramIndex}`;
       params.push(type);
@@ -81,7 +123,7 @@ router.post("/transactions", async (req, res) => {
       params.push(categoryId);
       paramIndex++;
     }
-  
+
     try {
       const result = await pool.query(query, params);
       res.status(200).json(result.rows);
@@ -90,6 +132,6 @@ router.post("/transactions", async (req, res) => {
       res.status(500).json({ error: "Ошибка получения данных" });
     }
   });
-  
+});
 
 module.exports = router;

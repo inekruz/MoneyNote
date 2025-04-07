@@ -19,10 +19,14 @@ const Income = () => {
   }, []);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     const body = { ...filter };
     fetch('https://api.devsis.ru/inex/transactions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json', 
+        Authorization: `Bearer ${token}`,  
+      },
       body: JSON.stringify(body),
     })
       .then(response => response.json())
@@ -34,6 +38,7 @@ const Income = () => {
   }, [filter]);
 
   const handleSubmit = (e) => {
+    const token = localStorage.getItem("token");
     e.preventDefault();
     if (amount <= 0) {
       notif("Сумма должна быть положительной!", "error");
@@ -42,7 +47,10 @@ const Income = () => {
     const data = { type, amount, description, category_id: category };
     fetch('https://api.devsis.ru/inex/add', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json', 
+        Authorization: `Bearer ${token}`,  
+      },
       body: JSON.stringify(data),
     })
       .then(response => response.json())

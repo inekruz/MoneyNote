@@ -21,7 +21,11 @@ const Charts = () => {
 
   // Глобальные транзакции (все)
   const fetchAllTransactions = async () => {
-    const res = await fetch('https://api.devsis.ru/inex/alltransactions');
+    const token = localStorage.getItem("token");
+    const res = await fetch('https://api.devsis.ru/inex/alltransactions', {
+      headers: {Authorization: `Bearer ${token}` }
+    });
+
     const data = await res.json();
     setAllTransactions(data);
   };
@@ -33,9 +37,10 @@ const Charts = () => {
   };
 
   const fetchTransactions = useCallback(async () => {
+    const token = localStorage.getItem("token");
     const res = await fetch('https://api.devsis.ru/inex/transactions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`  },
       body: JSON.stringify({
         categoryId: selectedCategory || undefined,
         startDate: startDate || undefined,
