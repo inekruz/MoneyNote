@@ -28,7 +28,8 @@ router.get("/categories", async (req, res) => {
 router.post("/add", async (req, res) => {
   const { type, amount, description, category_id } = req.body;
   const token = req.headers.authorization?.split(" ")[1];
-
+  console.log(token);
+  
   if (!token) {
     return res.status(400).json({ error: "Токен не найден" });
   }
