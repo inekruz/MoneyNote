@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const { Pool } = require("pg");
-
+const jwt = require("jsonwebtoken");
 const router = express.Router();
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -10,6 +10,8 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
 });
+
+const SECRET_KEY = process.env.SECRET_KEY || "none";
 
 // Получение всех категорий
 router.get("/categories", async (req, res) => {
@@ -56,7 +58,6 @@ router.post("/add", async (req, res) => {
     }
   });
 });
-
 
 // Получение всех транзакций
 router.get("/alltransactions", async (req, res) => {
