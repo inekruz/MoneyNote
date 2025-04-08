@@ -8,7 +8,7 @@ const json2csv = require('json2csv').parse;
 const { jsPDF } = require('jspdf');
 const xlsx = require('xlsx');
 const multer = require('multer');
-const csv = require('csv-parser');
+const csvParser = require("csv-parser");
 const readline = require('readline');
 const router = express.Router();
 const pool = new Pool({
@@ -295,7 +295,7 @@ router.post("/download-report", async (req, res) => {
 });
 
 // Маршрут для загрузки отчетов
-router.post('/upload-report', upload.single('file'), (req, res) => {
+router.post('/upload-report', async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
     return res.status(400).json({ error: "Токен не найден" });
@@ -307,91 +307,24 @@ router.post('/upload-report', upload.single('file'), (req, res) => {
     }
 
     const { login } = decoded;
-    const filePath = req.file.path;
-    const fileExtension = path.extname(filePath).toLowerCase();
+    const data = req.body;
 
-    if (fileExtension === '.csv') {
-      const results = [];
-      fs.createReadStream(filePath)
-        .pipe(csv())
-        .on('data', (row) => {
-          results.push(row);
-        })
-        .on('end', async () => {
-          try {
-            for (const row of results) {
-              const { 'Тип': type, 'Сумма': amount, 'Описание': description, 'Категория': category, 'Дата': date } = row;
-              await pool.query(
-                `INSERT INTO transactions (type, amount, description, category_name, date, ulogin)
-                 VALUES ($1, $2, $3, $4, $5, $6)`,
-                [type, amount, description, category, date, login]
-              );
-            }
-            res.status(200).json({ message: 'Данные из CSV успешно загружены' });
-          } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: 'Ошибка при загрузке данных' });
-          }
-        });
-    }
-    else if (fileExtension === '.txt') {
-      const results = [];
-      const lineReader = readline.createInterface({
-        input: fs.createReadStream(filePath),
-        output: process.stdout,
-        terminal: false
-      });
-
-      lineReader.on('line', (line) => {
-        const regex = /№:\s*(\d+),\s*Тип:\s*(\w+),\s*Сумма:\s*([\d.]+),\s*Описание:\s*([^,]+),\s*Категория:\s*([^,]+),\s*Дата:\s*([^,]+)/;
-        const match = line.match(regex);
-
-        if (match) {
-          const [, index, type, amount, description, category, date] = match;
-          results.push({ type, amount, description, category, date });
-        }
-      });
-
-      lineReader.on('close', async () => {
-        try {
-          for (const row of results) {
-            const { type, amount, description, category, date } = row;
-            await pool.query(
-              `INSERT INTO transactions (type, amount, description, category_name, date, ulogin)
-               VALUES ($1, $2, $3, $4, $5, $6)`,
-              [type, amount, description, category, date, login]
-            );
-          }
-          res.status(200).json({ message: 'Данные из TXT успешно загружены' });
-        } catch (err) {
-          console.error(err);
-          res.status(500).json({ error: 'Ошибка при загрузке данных' });
-        }
-      });
-    }
-    else if (fileExtension === '.xlsx') {
-      const workbook = xlsx.readFile(filePath);
-      const sheet_name_list = workbook.SheetNames;
-      const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]); // Чтение первого листа
-
-      try {
-        for (const row of data) {
-          const { Тип: type, Сумма: amount, Описание: description, Категория: category, Дата: date } = row;
-          await pool.query(
-            `INSERT INTO transactions (type, amount, description, category_name, date, ulogin)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
-            [type, amount, description, category, date, login]
-          );
-        }
-        res.status(200).json({ message: 'Данные из XLSX успешно загружены' });
-      } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Ошибка при загрузке данных' });
+    try {
+      for (const row of data) {
+        const { type, amount, description, category, date } = row;
+        await pool.query(
+          `INSERT INTO transactions (type, amount, description, category_name, date, ulogin)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [type, amount, description, category, date, login]
+        );
       }
-    } else {
-      res.status(400).json({ error: "Неверный формат файла" });
+      res.status(200).json({ success: true, message: 'Данные успешно загружены!' });
+    } catch (err) {
+      console.error("Ошибка при загрузке данных:", err);
+      res.status(500).json({ error: "Ошибка при загрузке данных" });
     }
   });
 });
+
 
 module.exports = router;
