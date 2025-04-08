@@ -224,14 +224,16 @@ router.post("/download-report", async (req, res) => {
 
       if (format === 'PDF') {
         const doc = new PDFDocument();
-        res.header('Content-Type', 'application/pdf');
-        res.attachment('transactions.pdf');
+      
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=transactions.pdf');
+  
+        doc.pipe(res);
   
         doc.fontSize(18).fillColor('#1a73e8').text('Отчет по транзакциям', { align: 'center' });
         doc.moveDown();
   
         doc.fontSize(10).fillColor('#333');
-  
         doc.text('№', 50, doc.y).text('Тип', 100, doc.y).text('Сумма', 200, doc.y).text('Описание', 300, doc.y).text('Категория', 400, doc.y).text('Дата', 500, doc.y);
         doc.moveDown(0.5);
   
