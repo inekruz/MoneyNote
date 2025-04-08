@@ -9,6 +9,7 @@ const { jsPDF } = require('jspdf');
 const xlsx = require('xlsx');
 const multer = require('multer');
 const csv = require('csv-parser');
+const readline = require('readline');
 const router = express.Router();
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -20,6 +21,7 @@ const pool = new Pool({
 
 const SECRET_KEY = process.env.SECRET_KEY || "none";
 const upload = multer({ dest: 'uploads/' });
+
 // Получение всех категорий
 router.get("/categories", async (req, res) => {
   try {
@@ -306,7 +308,6 @@ router.post('/upload-report', upload.single('file'), (req, res) => {
 
     const { login } = decoded;
     const filePath = req.file.path;
-
     const fileExtension = path.extname(filePath).toLowerCase();
 
     if (fileExtension === '.csv') {
@@ -333,47 +334,25 @@ router.post('/upload-report', upload.single('file'), (req, res) => {
           }
         });
     }
-
-    else if (fileExtension === '.xlsx') {
-      const workbook = xlsx.readFile(filePath);
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const data = xlsx.utils.sheet_to_json(sheet);
-
-      try {
-        for (const row of data) {
-          const { Тип: type, Сумма: amount, Описание: description, Категория: category, Дата: date } = row;
-          await pool.query(
-            `INSERT INTO transactions (type, amount, description, category_name, date, ulogin)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
-            [type, amount, description, category, date, login]
-          );
-        }
-        res.status(200).json({ message: 'Данные из EXCEL успешно загружены' });
-      } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Ошибка при загрузке данных' });
-      }
-    }
-
     else if (fileExtension === '.txt') {
       const results = [];
-      fs.readFile(filePath, 'utf8', async (err, data) => {
-        if (err) {
-          return res.status(500).json({ error: 'Ошибка чтения файла' });
+      const lineReader = readline.createInterface({
+        input: fs.createReadStream(filePath),
+        output: process.stdout,
+        terminal: false
+      });
+
+      lineReader.on('line', (line) => {
+        const regex = /№:\s*(\d+),\s*Тип:\s*(\w+),\s*Сумма:\s*([\d.]+),\s*Описание:\s*([^,]+),\s*Категория:\s*([^,]+),\s*Дата:\s*([^,]+)/;
+        const match = line.match(regex);
+
+        if (match) {
+          const [, index, type, amount, description, category, date] = match;
+          results.push({ type, amount, description, category, date });
         }
+      });
 
-        const lines = data.split('\n');
-        lines.forEach(line => {
-          const fields = line.split(',');
-          results.push({
-            type: fields[1]?.split(':')[1]?.trim(),
-            amount: fields[2]?.split(':')[1]?.trim(),
-            description: fields[3]?.split(':')[1]?.trim(),
-            category: fields[4]?.split(':')[1]?.trim(),
-            date: fields[5]?.split(':')[1]?.trim(),
-          });
-        });
-
+      lineReader.on('close', async () => {
         try {
           for (const row of results) {
             const { type, amount, description, category, date } = row;
@@ -390,9 +369,27 @@ router.post('/upload-report', upload.single('file'), (req, res) => {
         }
       });
     }
+    else if (fileExtension === '.xlsx') {
+      const workbook = xlsx.readFile(filePath);
+      const sheet_name_list = workbook.SheetNames;
+      const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]); // Чтение первого листа
 
-    else {
-      res.status(400).json({ error: 'Неподдерживаемый формат файла' });
+      try {
+        for (const row of data) {
+          const { Тип: type, Сумма: amount, Описание: description, Категория: category, Дата: date } = row;
+          await pool.query(
+            `INSERT INTO transactions (type, amount, description, category_name, date, ulogin)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [type, amount, description, category, date, login]
+          );
+        }
+        res.status(200).json({ message: 'Данные из XLSX успешно загружены' });
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Ошибка при загрузке данных' });
+      }
+    } else {
+      res.status(400).json({ error: "Неверный формат файла" });
     }
   });
 });
