@@ -3,7 +3,7 @@ const express = require("express");
 const { Pool } = require("pg");
 const jwt = require("jsonwebtoken");
 const json2csv = require('json2csv').parse;
-const pdf = require('html-pdf-chrome');
+const pdf = require('html-pdf');
 const xlsx = require('xlsx');
 const router = express.Router();
 const pool = new Pool({
@@ -226,90 +226,103 @@ router.post("/download-report", async (req, res) => {
       }
       if (format === 'PDF') {
         let htmlContent = `
-          <html>
-            <head>
-              <style>
-                body {
-                  font-family: Arial, sans-serif;
-                  color: #333;
-                  margin: 20px;
-                }
-                table {
-                  width: 100%;
-                  border-collapse: collapse;
-                  margin-bottom: 20px;
-                }
-                table, th, td {
-                  border: 1px solid #ccc;
-                }
-                th, td {
-                  padding: 8px;
-                  text-align: left;
-                }
-                th {
-                  background-color: #f2f2f2;
-                }
-                tr:nth-child(even) {
-                  background-color: #f9f9f9;
-                }
-                h1 {
-                  text-align: center;
-                  color: #1a73e8;
-                }
-                .footer {
-                  text-align: center;
-                  font-size: 10px;
-                  color: #aaa;
-                }
-              </style>
-            </head>
-            <body>
-              <h1>Отчет по транзакциям</h1>
-              <table>
-                <thead>
-                  <tr>
-                    <th>№</th>
-                    <th>Тип</th>
-                    <th>Сумма</th>
-                    <th>Описание</th>
-                    <th>Категория</th>
-                    <th>Дата</th>
-                  </tr>
-                </thead>
-                <tbody>
-        `;
-
-        formattedData.forEach(item => {
-          htmlContent += `
-            <tr>
-              <td>${item.index}</td>
-              <td>${item.type}</td>
-              <td>${item.amount}</td>
-              <td>${item.description}</td>
-              <td>${item.category}</td>
-              <td>${item.date}</td>
-            </tr>
-          `;
-        });
-
+        <html>
+          <head>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                color: #333;
+                margin: 20px;
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+              }
+              table, th, td {
+                border: 1px solid #ccc;
+              }
+              th, td {
+                padding: 8px;
+                text-align: left;
+              }
+              th {
+                background-color: #f2f2f2;
+              }
+              tr:nth-child(even) {
+                background-color: #f9f9f9;
+              }
+              h1 {
+                text-align: center;
+                color: #1a73e8;
+              }
+              .footer {
+                text-align: center;
+                font-size: 10px;
+                color: #aaa;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Отчет по транзакциям</h1>
+            <table>
+              <thead>
+                <tr>
+                  <th>№</th>
+                  <th>Тип</th>
+                  <th>Сумма</th>
+                  <th>Описание</th>
+                  <th>Категория</th>
+                  <th>Дата</th>
+                </tr>
+              </thead>
+              <tbody>
+      `;
+    
+      formattedData.forEach(item => {
         htmlContent += `
-                </tbody>
-              </table>
-              <div class="footer">Сгенерировано автоматически</div>
-            </body>
-          </html>
+          <tr>
+            <td>${item.index}</td>
+            <td>${item.type}</td>
+            <td>${item.amount}</td>
+            <td>${item.description}</td>
+            <td>${item.category}</td>
+            <td>${item.date}</td>
+          </tr>
         `;
-
-        pdf.create(htmlContent).then(pdfBuffer => {
-          res.header('Content-Type', 'application/pdf');
-          res.attachment('transactions.pdf');
-          res.send(pdfBuffer);
-        }).catch(err => {
-          console.error("Ошибка при создании PDF:", err);
-          res.status(500).json({ error: "Ошибка генерации PDF" });
-        });
-
-        return;
+      });
+    
+      htmlContent += `
+              </tbody>
+            </table>
+            <div class="footer">Сгенерировано автоматически</div>
+          </body>
+        </html>
+      `;
+    
+      const options = {
+        format: 'A4',
+        orientation: 'portrait',
+        border: {
+          top: "20px",
+          right: "20px",
+          bottom: "20px",
+          left: "20px"
+        }
+      };
+    
+      pdf.create(htmlContent, options).toBuffer((err, buffer) => {
+        if (err) {
+          console.error("Ошибка при генерации PDF:", err);
+          return res.status(500).json({ error: "Ошибка генерации отчета" });
+        }
+    
+        res.header('Content-Type', 'application/pdf');
+        res.attachment('transactions.pdf');
+        res.send(buffer);
+      });
+    
+      return;
       }
       if (format === 'EXCEL') {
         const ws = xlsx.utils.json_to_sheet(formattedData);
