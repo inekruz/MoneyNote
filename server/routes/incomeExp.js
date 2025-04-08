@@ -3,7 +3,8 @@ const express = require("express");
 const { Pool } = require("pg");
 const jwt = require("jsonwebtoken");
 const json2csv = require('json2csv').parse;
-const pdf = require('html-pdf');
+const PDFDocument = require('pdfkit');
+const { PassThrough } = require('stream');
 const xlsx = require('xlsx');
 const router = express.Router();
 const pool = new Pool({
@@ -225,104 +226,45 @@ router.post("/download-report", async (req, res) => {
         return res.send(txt);
       }
       if (format === 'PDF') {
-        let htmlContent = `
-        <html>
-          <head>
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                color: #333;
-                margin: 20px;
-              }
-              table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 20px;
-              }
-              table, th, td {
-                border: 1px solid #ccc;
-              }
-              th, td {
-                padding: 8px;
-                text-align: left;
-              }
-              th {
-                background-color: #f2f2f2;
-              }
-              tr:nth-child(even) {
-                background-color: #f9f9f9;
-              }
-              h1 {
-                text-align: center;
-                color: #1a73e8;
-              }
-              .footer {
-                text-align: center;
-                font-size: 10px;
-                color: #aaa;
-              }
-            </style>
-          </head>
-          <body>
-            <h1>Отчет по транзакциям</h1>
-            <table>
-              <thead>
-                <tr>
-                  <th>№</th>
-                  <th>Тип</th>
-                  <th>Сумма</th>
-                  <th>Описание</th>
-                  <th>Категория</th>
-                  <th>Дата</th>
-                </tr>
-              </thead>
-              <tbody>
-      `;
-    
-      formattedData.forEach(item => {
-        htmlContent += `
-          <tr>
-            <td>${item.index}</td>
-            <td>${item.type}</td>
-            <td>${item.amount}</td>
-            <td>${item.description}</td>
-            <td>${item.category}</td>
-            <td>${item.date}</td>
-          </tr>
-        `;
-      });
-    
-      htmlContent += `
-              </tbody>
-            </table>
-            <div class="footer">Сгенерировано автоматически</div>
-          </body>
-        </html>
-      `;
-    
-      const options = {
-        format: 'A4',
-        orientation: 'portrait',
-        border: {
-          top: "20px",
-          right: "20px",
-          bottom: "20px",
-          left: "20px"
-        }
-      };
-    
-      pdf.create(htmlContent, options).toBuffer((err, buffer) => {
-        if (err) {
-          console.error("Ошибка при генерации PDF:", err);
-          return res.status(500).json({ error: "Ошибка генерации отчета" });
-        }
-    
+        const doc = new PDFDocument();
+        const stream = new PassThrough();
+      
         res.header('Content-Type', 'application/pdf');
         res.attachment('transactions.pdf');
-        res.send(buffer);
-      });
-    
-      return;
+      
+        doc.pipe(stream);
+        stream.pipe(res);
+      
+        doc.fontSize(20).text('Отчет по транзакциям', { align: 'center' });
+        doc.moveDown();
+      
+        const table = {
+          headers: ['№', 'Тип', 'Сумма', 'Описание', 'Категория', 'Дата'],
+          rows: formattedData.map(item => [
+            item.index,
+            item.type,
+            item.amount,
+            item.description,
+            item.category,
+            item.date
+          ])
+        };
+      
+        table.headers.forEach(header => {
+          doc.font('Helvetica-Bold').text(header, { continued: true }).font('Helvetica').text('  ');
+        });
+        doc.moveDown();
+      
+        table.rows.forEach(row => {
+          row.forEach(cell => {
+            doc.text(cell, { continued: true }).text('  ');
+          });
+          doc.moveDown();
+        });
+      
+        doc.end();
+      
+        return;
       }
       if (format === 'EXCEL') {
         const ws = xlsx.utils.json_to_sheet(formattedData);
