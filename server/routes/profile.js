@@ -71,7 +71,67 @@ router.get("/getUser", (req, res) => {
       }
     });
   });
-  
+
+// Обновление данных пользователя
+router.post("/updateUser", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(400).json({ error: "Токен не найден" });
+  }
+
+  jwt.verify(token, SECRET_KEY, async (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ error: "Ошибка при обработке токена" });
+    }
+
+    const { login } = decoded;
+
+    try {
+      const { username, email, password } = req.body;
+
+      const result = await pool.query('SELECT * FROM users WHERE login = $1', [login]);
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Пользователь не найден" });
+      }
+
+      const updateValues = [];
+      const updateColumns = [];
+
+      if (username) {
+        updateColumns.push("username = $1");
+        updateValues.push(username);
+      }
+      if (email) {
+        updateColumns.push("email = $2");
+        updateValues.push(email);
+      }
+      if (password) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        updateColumns.push("password = $3");
+        updateValues.push(hashedPassword);
+      }
+
+      if (updateColumns.length > 0) {
+        const updateQuery = `UPDATE users SET ${updateColumns.join(", ")} WHERE login = $${updateValues.length + 1} RETURNING *`;
+        const updatedUser = await pool.query(updateQuery, [...updateValues, login]);
+
+        if (updatedUser.rows.length > 0) {
+          res.status(200).json({ message: "Данные успешно обновлены", userData: updatedUser.rows[0] });
+        } else {
+          res.status(400).json({ error: "Ошибка при обновлении данных" });
+        }
+      } else {
+        res.status(400).json({ error: "Нет данных для обновления" });
+      }
+    } catch (dbError) {
+      console.error('Ошибка в бд:', dbError);
+      res.status(500).json({ error: "Ошибка сервера" });
+    }
+  });
+});
+
 // Обновление аватарки пользователя
   router.post("/setAvatar", upload.single('avatar'), (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
@@ -142,5 +202,4 @@ router.get("/getUser", (req, res) => {
     });
   });
 
-  
 module.exports = router;
