@@ -308,12 +308,25 @@ router.post('/upload-report', async (req, res) => {
     try {
       for (const transaction of transactions) {
         const { type, amount, description, category, date } = transaction;
+
+        const categoryResult = await pool.query(
+          `SELECT id FROM expense_categories WHERE name = $1`,
+          [category]
+        );
+
+        if (categoryResult.rows.length === 0) {
+          return res.status(400).json({ error: `Категория "${category}" не найдена` });
+        }
+
+        const categoryId = categoryResult.rows[0].id;
+
         await pool.query(
-          `INSERT INTO transactions (type, amount, description, category_name, date, ulogin)
+          `INSERT INTO transactions (type, amount, description, category_id, date, ulogin)
            VALUES ($1, $2, $3, $4, $5, $6)`,
-          [type, amount, description, category, date, login]
+          [type, amount, description, categoryId, date, login]
         );
       }
+
       res.status(200).json({ success: true, message: 'Данные успешно загружены!' });
     } catch (err) {
       console.error(err);
@@ -321,5 +334,6 @@ router.post('/upload-report', async (req, res) => {
     }
   });
 });
+
 
 module.exports = router;
