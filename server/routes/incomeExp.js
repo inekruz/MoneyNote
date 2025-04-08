@@ -2,9 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const { Pool } = require("pg");
 const jwt = require("jsonwebtoken");
-const fs = require('fs');
 const json2csv = require('json2csv').parse;
-const { jsPDF } = require('jspdf');
+const puppeteer = require('puppeteer');
 const xlsx = require('xlsx');
 const router = express.Router();
 const pool = new Pool({
@@ -154,7 +153,7 @@ const translateType = (type) => {
 };
 
 // Маршрут для скачивания отчета
-router.post("/download-report", async (req, res) => {
+app.post("/download-report", async (req, res) => {
   const { type, startDate, endDate, categoryId, format } = req.body;
   const token = req.headers.authorization?.split(" ")[1];
 
@@ -168,12 +167,7 @@ router.post("/download-report", async (req, res) => {
     }
 
     const { login } = decoded;
-    let query = `
-      SELECT t.*, c.name AS category_name 
-      FROM transactions t
-      LEFT JOIN expense_categories c ON t.category_id = c.id
-      WHERE t.ulogin = $1
-    `;
+    let query = `SELECT t.*, c.name AS category_name FROM transactions t LEFT JOIN expense_categories c ON t.category_id = c.id WHERE t.ulogin = $1`;
     const params = [login];
     let paramIndex = 2;
 
@@ -212,11 +206,13 @@ router.post("/download-report", async (req, res) => {
         res.attachment('transactions.csv');
         return res.send(csv);
       }
+
       if (format === 'JSON') {
         res.header('Content-Type', 'application/json');
         res.attachment('transactions.json');
         return res.send(JSON.stringify(formattedData));
       }
+
       if (format === 'TXT') {
         const txt = formattedData.map(item => 
           `№: ${item.index}, Тип: ${item.type}, Сумма: ${item.amount}, Описание: ${item.description}, Категория: ${item.category}, Дата: ${item.date}`
@@ -225,6 +221,7 @@ router.post("/download-report", async (req, res) => {
         res.attachment('transactions.txt');
         return res.send(txt);
       }
+
       if (format === 'PDF') {
         let htmlContent = `
           <html>
@@ -301,21 +298,20 @@ router.post("/download-report", async (req, res) => {
           </html>
         `;
 
-        const doc = new jsPDF();
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+        await page.setContent(htmlContent);
+        const pdfBuffer = await page.pdf({ format: 'A4' });
 
-        doc.html(htmlContent, {
-          callback: function (doc) {
-            res.header('Content-Type', 'application/pdf');
-            res.attachment('transactions.pdf');
-            res.send(doc.output());
-          },
-          margin: [20, 20, 20, 20],
-          x: 10,
-          y: 10,
-        });
+        await browser.close();
+
+        res.header('Content-Type', 'application/pdf');
+        res.attachment('transactions.pdf');
+        res.send(pdfBuffer);
 
         return;
       }
+
       if (format === 'EXCEL') {
         const ws = xlsx.utils.json_to_sheet(formattedData);
         const wb = xlsx.utils.book_new();
