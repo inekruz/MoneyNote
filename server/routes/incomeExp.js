@@ -139,7 +139,21 @@ router.post("/transactions", async (req, res) => {
   });
 });
 
-// Маршрут для скачивания отчета
+// Функция для преобразования даты в формат dd/mm/yyyy
+const formatDate = (date) => {
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+// Функция для перевода типа на русский
+const translateType = (type) => {
+  return type === 'income' ? 'Доход' : 'Расход';
+};
+
+// Маршрут для скачивания отчетов
 router.post("/download-report", async (req, res) => {
   const { type, startDate, endDate, categoryId, format } = req.body;
   const token = req.headers.authorization?.split(" ")[1];
@@ -185,11 +199,11 @@ router.post("/download-report", async (req, res) => {
 
       const formattedData = data.map((item, index) => ({
         index: index + 1,
-        type: item.type,
+        type: translateType(item.type),
         amount: item.amount,
         description: item.description || '—',
         category: item.category_name,
-        date: item.date,
+        date: formatDate(item.date),
       }));
 
       if (format === 'CSV') {
@@ -234,7 +248,7 @@ router.post("/download-report", async (req, res) => {
 
         yOffset += 12;
         formattedData.forEach((item, index) => {
-          doc.setFillColor(index % 2 === 0 ? 255 : 245, 245, 245);
+          doc.setFillColor(index % 2 === 0 ? 255 : 245, 245, 245); 
           doc.rect(10, yOffset, 190, 10, 'F');
 
           doc.text(`${item.index}`, 15, yOffset + 7);
