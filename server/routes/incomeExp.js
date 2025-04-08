@@ -2,9 +2,9 @@ require("dotenv").config();
 const express = require("express");
 const { Pool } = require("pg");
 const jwt = require("jsonwebtoken");
+const fs = require('fs');
 const json2csv = require('json2csv').parse;
-const PDFDocument = require('pdfkit');
-const { PassThrough } = require('stream');
+const { jsPDF } = require('jspdf');
 const xlsx = require('xlsx');
 const router = express.Router();
 const pool = new Pool({
@@ -226,45 +226,45 @@ router.post("/download-report", async (req, res) => {
         return res.send(txt);
       }
       if (format === 'PDF') {
-        const doc = new PDFDocument();
-        const stream = new PassThrough();
+        const doc = new jsPDF();
+      
+        doc.setFont("times", "normal"); 
+        doc.setFontSize(12);
+      
+        doc.setTextColor(0, 51, 102);
+        doc.setFontSize(18);
+        doc.text("Отчет по транзакциям", 14, 20);
+      
+        const headers = ['№', 'Тип', 'Сумма', 'Описание', 'Категория', 'Дата'];
+        let yOffset = 30;
+      
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        doc.setFillColor(240, 240, 240);
+        doc.rect(10, yOffset, 190, 10, 'F');
+      
+        headers.forEach((header, index) => {
+          doc.text(header, 15 + index * 32, yOffset + 7);
+        });
+      
+        yOffset += 12;
+        formattedData.forEach((item, index) => {
+          doc.setFillColor(index % 2 === 0 ? 255 : 245, 245, 245); 
+          doc.rect(10, yOffset, 190, 10, 'F');
+      
+          doc.text(`${item.index}`, 15, yOffset + 7);
+          doc.text(item.type, 45, yOffset + 7);
+          doc.text(item.amount.toString(), 75, yOffset + 7);
+          doc.text(item.description, 105, yOffset + 7);
+          doc.text(item.category, 145, yOffset + 7);
+          doc.text(item.date, 175, yOffset + 7);
+      
+          yOffset += 10;
+        });
       
         res.header('Content-Type', 'application/pdf');
         res.attachment('transactions.pdf');
-      
-        doc.pipe(stream);
-        stream.pipe(res);
-      
-        doc.fontSize(20).text('Отчет по транзакциям', { align: 'center' });
-        doc.moveDown();
-      
-        const table = {
-          headers: ['№', 'Тип', 'Сумма', 'Описание', 'Категория', 'Дата'],
-          rows: formattedData.map(item => [
-            item.index,
-            item.type,
-            item.amount,
-            item.description,
-            item.category,
-            item.date
-          ])
-        };
-      
-        table.headers.forEach(header => {
-          doc.font('Helvetica-Bold').text(header, { continued: true }).font('Helvetica').text('  ');
-        });
-        doc.moveDown();
-      
-        table.rows.forEach(row => {
-          row.forEach(cell => {
-            doc.text(cell, { continued: true }).text('  ');
-          });
-          doc.moveDown();
-        });
-      
-        doc.end();
-      
-        return;
+        return res.send(doc.output());
       }
       if (format === 'EXCEL') {
         const ws = xlsx.utils.json_to_sheet(formattedData);
