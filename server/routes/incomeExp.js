@@ -153,7 +153,7 @@ const translateType = (type) => {
   return type === 'income' ? 'Доход' : 'Расход';
 };
 
-// Маршрут для скачивания отчетов
+// Маршрут для скачивания отчета
 router.post("/download-report", async (req, res) => {
   const { type, startDate, endDate, categoryId, format } = req.body;
   const token = req.headers.authorization?.split(" ")[1];
@@ -248,7 +248,7 @@ router.post("/download-report", async (req, res) => {
 
         yOffset += 12;
         formattedData.forEach((item, index) => {
-          doc.setFillColor(index % 2 === 0 ? 255 : 245, 245, 245); 
+          doc.setFillColor(index % 2 === 0 ? 255 : 245, 245, 245);
           doc.rect(10, yOffset, 190, 10, 'F');
 
           doc.text(`${item.index}`, 15, yOffset + 7);
