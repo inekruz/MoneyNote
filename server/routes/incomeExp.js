@@ -7,6 +7,8 @@ const path = require('path');
 const json2csv = require('json2csv').parse;
 const { jsPDF } = require('jspdf');
 const xlsx = require('xlsx');
+const multer = require('multer');
+const csv = require('csv-parser');
 const router = express.Router();
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -17,7 +19,7 @@ const pool = new Pool({
 });
 
 const SECRET_KEY = process.env.SECRET_KEY || "none";
-
+const upload = multer({ dest: 'uploads/' });
 // Получение всех категорий
 router.get("/categories", async (req, res) => {
   try {
@@ -290,4 +292,108 @@ router.post("/download-report", async (req, res) => {
   });
 });
 
+// Маршрут для загрузки отчетов
+router.post('/upload-report', upload.single('file'), (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(400).json({ error: "Токен не найден" });
+  }
+
+  jwt.verify(token, SECRET_KEY, async (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ error: "Ошибка при обработке токена" });
+    }
+
+    const { login } = decoded;
+    const filePath = req.file.path;
+
+    const fileExtension = path.extname(filePath).toLowerCase();
+
+    if (fileExtension === '.csv') {
+      const results = [];
+      fs.createReadStream(filePath)
+        .pipe(csv())
+        .on('data', (row) => {
+          results.push(row);
+        })
+        .on('end', async () => {
+          try {
+            for (const row of results) {
+              const { type, amount, description, category, date } = row;
+              await pool.query(
+                `INSERT INTO transactions (type, amount, description, category_name, date, ulogin)
+                 VALUES ($1, $2, $3, $4, $5, $6)`,
+                [type, amount, description, category, date, login]
+              );
+            }
+            res.status(200).json({ message: 'Данные из CSV успешно загружены' });
+          } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Ошибка при загрузке данных' });
+          }
+        });
+    }
+
+    else if (fileExtension === '.xlsx') {
+      const workbook = xlsx.readFile(filePath);
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const data = xlsx.utils.sheet_to_json(sheet);
+
+      try {
+        for (const row of data) {
+          const { type, amount, description, category, date } = row;
+          await pool.query(
+            `INSERT INTO transactions (type, amount, description, category_name, date, ulogin)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [type, amount, description, category, date, login]
+          );
+        }
+        res.status(200).json({ message: 'Данные из EXCEL успешно загружены' });
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Ошибка при загрузке данных' });
+      }
+    }
+
+    else if (fileExtension === '.txt') {
+      const results = [];
+      fs.readFile(filePath, 'utf8', async (err, data) => {
+        if (err) {
+          return res.status(500).json({ error: 'Ошибка чтения файла' });
+        }
+
+        const lines = data.split('\n');
+        lines.forEach(line => {
+          const fields = line.split(',');
+          results.push({
+            type: fields[1],
+            amount: fields[2],
+            description: fields[3],
+            category: fields[4],
+            date: fields[5],
+          });
+        });
+
+        try {
+          for (const row of results) {
+            const { type, amount, description, category, date } = row;
+            await pool.query(
+              `INSERT INTO transactions (type, amount, description, category_name, date, ulogin)
+               VALUES ($1, $2, $3, $4, $5, $6)`,
+              [type, amount, description, category, date, login]
+            );
+          }
+          res.status(200).json({ message: 'Данные из TXT успешно загружены' });
+        } catch (err) {
+          console.error(err);
+          res.status(500).json({ error: 'Ошибка при загрузке данных' });
+        }
+      });
+    }
+
+    else {
+      res.status(400).json({ error: 'Неподдерживаемый формат файла' });
+    }
+  });
+});
 module.exports = router;
