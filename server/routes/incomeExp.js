@@ -153,7 +153,7 @@ const translateType = (type) => {
 };
 
 // Маршрут для скачивания отчета
-app.post("/download-report", async (req, res) => {
+router.post("/download-report", async (req, res) => {
   const { type, startDate, endDate, categoryId, format } = req.body;
   const token = req.headers.authorization?.split(" ")[1];
 
