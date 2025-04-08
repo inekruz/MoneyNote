@@ -3,6 +3,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const InExpRoutes = require('./routes/incomeExp');
 const UserRoutes = require('./routes/profile');
+const GoalsRoutes = require('./routes/goals');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/inex', InExpRoutes);
 app.use('/user', UserRoutes);
+app.use('/goals', GoalsRoutes);
 
 app.listen(port, () => {
     console.log(`HTTP сервер запущен на порту ${port}`);
