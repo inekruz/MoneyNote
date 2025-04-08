@@ -290,6 +290,7 @@ router.post("/download-report", async (req, res) => {
   });
 });
 
+// Маршрут для загрузки данных
 router.post('/upload-report', async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
@@ -302,31 +303,23 @@ router.post('/upload-report', async (req, res) => {
     }
 
     const { login } = decoded;
-    const { reportData } = req.body;
-
-    if (!Array.isArray(reportData)) {
-      return res.status(400).json({ error: "Неверный формат данных, ожидается массив" });
-    }
+    const transactions = req.body;
 
     try {
-      for (const row of reportData) {
-        const { type, amount, description, category, date } = row;
-
+      for (const transaction of transactions) {
+        const { type, amount, description, category, date } = transaction;
         await pool.query(
           `INSERT INTO transactions (type, amount, description, category_name, date, ulogin)
            VALUES ($1, $2, $3, $4, $5, $6)`,
           [type, amount, description, category, date, login]
         );
       }
-
-      res.status(200).json({ success: true, message: 'Данные успешно загружены' });
+      res.status(200).json({ success: true, message: 'Данные успешно загружены!' });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Ошибка при загрузке данных" });
+      res.status(500).json({ error: "Ошибка загрузки данных в базу" });
     }
   });
 });
-
-
 
 module.exports = router;
