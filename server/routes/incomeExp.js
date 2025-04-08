@@ -7,9 +7,6 @@ const path = require('path');
 const json2csv = require('json2csv').parse;
 const { jsPDF } = require('jspdf');
 const xlsx = require('xlsx');
-const multer = require('multer');
-const csvParser = require("csv-parser");
-const readline = require('readline');
 const router = express.Router();
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -20,7 +17,6 @@ const pool = new Pool({
 });
 
 const SECRET_KEY = process.env.SECRET_KEY || "none";
-const upload = multer({ dest: 'uploads/' });
 
 // Получение всех категорий
 router.get("/categories", async (req, res) => {
