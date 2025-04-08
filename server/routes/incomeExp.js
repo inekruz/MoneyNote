@@ -2,6 +2,10 @@ require("dotenv").config();
 const express = require("express");
 const { Pool } = require("pg");
 const jwt = require("jsonwebtoken");
+const fs = require('fs');
+const json2csv = require('json2csv').parse;
+const { jsPDF } = require('jspdf');
+const xlsx = require('xlsx');
 const router = express.Router();
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -131,6 +135,94 @@ router.post("/transactions", async (req, res) => {
     } catch (err) {
       console.error("Ошибка при запросе в БД:", err);
       res.status(500).json({ error: "Ошибка получения данных" });
+    }
+  });
+});
+
+// Маршрут для скачивания отчета
+router.post("/download-report", async (req, res) => {
+  const { type, startDate, endDate, categoryId, format } = req.body;
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(400).json({ error: "Токен не найден" });
+  }
+
+  jwt.verify(token, SECRET_KEY, async (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ error: "Ошибка при обработке токена" });
+    }
+
+    const { login } = decoded;
+    let query = `
+      SELECT t.*, c.name AS category_name 
+      FROM transactions t
+      LEFT JOIN expense_categories c ON t.category_id = c.id
+      WHERE t.ulogin = $1
+    `;
+    const params = [login];
+    let paramIndex = 2;
+
+    if (type) {
+      query += ` AND t.type = $${paramIndex}`;
+      params.push(type);
+      paramIndex++;
+    }
+    if (startDate && endDate) {
+      query += ` AND t.date BETWEEN $${paramIndex} AND $${paramIndex + 1}`;
+      params.push(startDate, endDate);
+      paramIndex += 2;
+    }
+    if (categoryId) {
+      query += ` AND t.category_id = $${paramIndex}`;
+      params.push(categoryId);
+      paramIndex++;
+    }
+
+    try {
+      const result = await pool.query(query, params);
+      const data = result.rows;
+
+      if (format === 'CSV') {
+        const csv = json2csv(data);
+        res.header('Content-Type', 'text/csv');
+        res.attachment('transactions.csv');
+        return res.send(csv);
+      }
+      if (format === 'JSON') {
+        res.header('Content-Type', 'application/json');
+        res.attachment('transactions.json');
+        return res.send(JSON.stringify(data));
+      }
+      if (format === 'TXT') {
+        const txt = data.map(item => `Date: ${item.date}, Type: ${item.type}, Category: ${item.category_name}`).join('\n');
+        res.header('Content-Type', 'text/plain');
+        res.attachment('transactions.txt');
+        return res.send(txt);
+      }
+      if (format === 'PDF') {
+        const doc = new jsPDF();
+        data.forEach((item, index) => {
+          doc.text(`Date: ${item.date} - Type: ${item.type} - Category: ${item.category_name}`, 10, 10 + (index * 10));
+        });
+        res.header('Content-Type', 'application/pdf');
+        res.attachment('transactions.pdf');
+        return res.send(doc.output());
+      }
+      if (format === 'EXCEL') {
+        const ws = xlsx.utils.json_to_sheet(data);
+        const wb = xlsx.utils.book_new();
+        xlsx.utils.book_append_sheet(wb, ws, 'Transactions');
+        const file = xlsx.write(wb, { bookType: 'xlsx', type: 'buffer' });
+        res.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.attachment('transactions.xlsx');
+        return res.send(file);
+      }
+      
+      res.status(400).json({ error: "Неверный формат" });
+    } catch (err) {
+      console.error("Ошибка при запросе в БД:", err);
+      res.status(500).json({ error: "Ошибка генерации отчета" });
     }
   });
 });
