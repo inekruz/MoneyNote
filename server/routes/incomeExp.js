@@ -153,6 +153,9 @@ const translateType = (type) => {
   return type === 'income' ? 'Доход' : 'Расход';
 };
 
+const fontPath = path.join(__dirname, 'DejaVuSans.ttf');
+const fontBase64 = fs.readFileSync(fontPath, 'base64');
+
 // Маршрут для скачивания отчета
 router.post("/download-report", async (req, res) => {
   const { type, startDate, endDate, categoryId, format } = req.body;
@@ -228,10 +231,8 @@ router.post("/download-report", async (req, res) => {
       if (format === 'PDF') {
         const doc = new jsPDF();
       
-        const fontBase64 = "ВАШ_BASE64_ШРИФТ_ЗДЕСЬ";
-      
-        doc.addFileToVFS("dejavu.ttf", fontBase64);
-        doc.addFont("dejavu.ttf", "dejavu", "normal");
+        doc.addFileToVFS("DejaVuSans.ttf", fontBase64);
+        doc.addFont("DejaVuSans.ttf", "dejavu", "normal");
         doc.setFont("dejavu", "normal");
         doc.setFontSize(12);
       
