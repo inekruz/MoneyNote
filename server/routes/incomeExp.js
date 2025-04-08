@@ -183,8 +183,17 @@ router.post("/download-report", async (req, res) => {
       const result = await pool.query(query, params);
       const data = result.rows;
 
+      const formattedData = data.map((item, index) => ({
+        index: index + 1,
+        type: item.type,
+        amount: item.amount,
+        description: item.description || '—',
+        category: item.category_name,
+        date: item.date,
+      }));
+
       if (format === 'CSV') {
-        const csv = json2csv(data);
+        const csv = json2csv(formattedData);
         res.header('Content-Type', 'text/csv');
         res.attachment('transactions.csv');
         return res.send(csv);
@@ -192,25 +201,58 @@ router.post("/download-report", async (req, res) => {
       if (format === 'JSON') {
         res.header('Content-Type', 'application/json');
         res.attachment('transactions.json');
-        return res.send(JSON.stringify(data));
+        return res.send(JSON.stringify(formattedData));
       }
       if (format === 'TXT') {
-        const txt = data.map(item => `Date: ${item.date}, Type: ${item.type}, Category: ${item.category_name}`).join('\n');
+        const txt = formattedData.map(item => 
+          `№: ${item.index}, Тип: ${item.type}, Сумма: ${item.amount}, Описание: ${item.description}, Категория: ${item.category}, Дата: ${item.date}`
+        ).join('\n');
         res.header('Content-Type', 'text/plain');
         res.attachment('transactions.txt');
         return res.send(txt);
       }
       if (format === 'PDF') {
         const doc = new jsPDF();
-        data.forEach((item, index) => {
-          doc.text(`Date: ${item.date} - Type: ${item.type} - Category: ${item.category_name}`, 10, 10 + (index * 10));
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+
+        doc.setTextColor(0, 51, 102);
+        doc.setFontSize(18);
+        doc.text("Отчет по транзакциям", 14, 20);
+
+        const headers = ['№', 'Тип', 'Сумма', 'Описание', 'Категория', 'Дата'];
+        let yOffset = 30;
+        
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        doc.setFillColor(240, 240, 240);
+        doc.rect(10, yOffset, 190, 10, 'F');
+        
+        headers.forEach((header, index) => {
+          doc.text(header, 15 + index * 32, yOffset + 7);
         });
+
+        yOffset += 12;
+        formattedData.forEach((item, index) => {
+          doc.setFillColor(index % 2 === 0 ? 255 : 245, 245, 245);
+          doc.rect(10, yOffset, 190, 10, 'F');
+
+          doc.text(`${item.index}`, 15, yOffset + 7);
+          doc.text(item.type, 45, yOffset + 7);
+          doc.text(item.amount.toString(), 75, yOffset + 7);
+          doc.text(item.description, 105, yOffset + 7);
+          doc.text(item.category, 145, yOffset + 7);
+          doc.text(item.date, 175, yOffset + 7);
+
+          yOffset += 10;
+        });
+
         res.header('Content-Type', 'application/pdf');
         res.attachment('transactions.pdf');
         return res.send(doc.output());
       }
       if (format === 'EXCEL') {
-        const ws = xlsx.utils.json_to_sheet(data);
+        const ws = xlsx.utils.json_to_sheet(formattedData);
         const wb = xlsx.utils.book_new();
         xlsx.utils.book_append_sheet(wb, ws, 'Transactions');
         const file = xlsx.write(wb, { bookType: 'xlsx', type: 'buffer' });
