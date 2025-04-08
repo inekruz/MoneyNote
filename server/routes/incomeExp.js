@@ -226,45 +226,95 @@ router.post("/download-report", async (req, res) => {
         return res.send(txt);
       }
       if (format === 'PDF') {
+        let htmlContent = `
+          <html>
+            <head>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  color: #333;
+                  margin: 20px;
+                }
+                table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin-bottom: 20px;
+                }
+                table, th, td {
+                  border: 1px solid #ccc;
+                }
+                th, td {
+                  padding: 8px;
+                  text-align: left;
+                }
+                th {
+                  background-color: #f2f2f2;
+                }
+                tr:nth-child(even) {
+                  background-color: #f9f9f9;
+                }
+                h1 {
+                  text-align: center;
+                  color: #1a73e8;
+                }
+                .footer {
+                  text-align: center;
+                  font-size: 10px;
+                  color: #aaa;
+                }
+              </style>
+            </head>
+            <body>
+              <h1>Отчет по транзакциям</h1>
+              <table>
+                <thead>
+                  <tr>
+                    <th>№</th>
+                    <th>Тип</th>
+                    <th>Сумма</th>
+                    <th>Описание</th>
+                    <th>Категория</th>
+                    <th>Дата</th>
+                  </tr>
+                </thead>
+                <tbody>
+        `;
+
+        formattedData.forEach(item => {
+          htmlContent += `
+            <tr>
+              <td>${item.index}</td>
+              <td>${item.type}</td>
+              <td>${item.amount}</td>
+              <td>${item.description}</td>
+              <td>${item.category}</td>
+              <td>${item.date}</td>
+            </tr>
+          `;
+        });
+
+        htmlContent += `
+                </tbody>
+              </table>
+              <div class="footer">Сгенерировано автоматически</div>
+            </body>
+          </html>
+        `;
+
         const doc = new jsPDF();
 
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(12);
-
-        doc.setTextColor(0, 51, 102);
-        doc.setFontSize(18);
-        doc.text("Отчет по транзакциям", 14, 20);
-
-        const headers = ['№', 'Тип', 'Сумма', 'Описание', 'Категория', 'Дата'];
-        let yOffset = 30;
-        
-        doc.setFontSize(10);
-        doc.setTextColor(0, 0, 0);
-        doc.setFillColor(240, 240, 240);
-        doc.rect(10, yOffset, 190, 10, 'F');
-        
-        headers.forEach((header, index) => {
-          doc.text(header, 15 + index * 32, yOffset + 7);
+        doc.html(htmlContent, {
+          callback: function (doc) {
+            res.header('Content-Type', 'application/pdf');
+            res.attachment('transactions.pdf');
+            res.send(doc.output());
+          },
+          margin: [20, 20, 20, 20],
+          x: 10,
+          y: 10,
         });
 
-        yOffset += 12;
-        formattedData.forEach((item, index) => {
-          doc.setFillColor(index % 2 === 0 ? 255 : 245, 245, 245); 
-          doc.rect(10, yOffset, 190, 10, 'F');
-
-          doc.text(`${item.index}`, 15, yOffset + 7);
-          doc.text(item.type, 45, yOffset + 7);
-          doc.text(item.amount.toString(), 75, yOffset + 7);
-          doc.text(item.description, 105, yOffset + 7);
-          doc.text(item.category, 145, yOffset + 7);
-          doc.text(item.date, 175, yOffset + 7);
-
-          yOffset += 10;
-        });
-
-        res.header('Content-Type', 'application/pdf');
-        res.attachment('transactions.pdf');
-        return res.send(doc.output());
+        return;
       }
       if (format === 'EXCEL') {
         const ws = xlsx.utils.json_to_sheet(formattedData);
