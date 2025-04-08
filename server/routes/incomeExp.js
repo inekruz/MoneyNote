@@ -3,7 +3,7 @@ const express = require("express");
 const { Pool } = require("pg");
 const jwt = require("jsonwebtoken");
 const json2csv = require('json2csv').parse;
-const PDFDocument = require('pdfkit');
+const pdf = require('html-pdf-chrome');
 const xlsx = require('xlsx');
 const router = express.Router();
 const pool = new Pool({
@@ -167,7 +167,12 @@ router.post("/download-report", async (req, res) => {
     }
 
     const { login } = decoded;
-    let query = `SELECT t.*, c.name AS category_name FROM transactions t LEFT JOIN expense_categories c ON t.category_id = c.id WHERE t.ulogin = $1`;
+    let query = `
+      SELECT t.*, c.name AS category_name 
+      FROM transactions t
+      LEFT JOIN expense_categories c ON t.category_id = c.id
+      WHERE t.ulogin = $1
+    `;
     const params = [login];
     let paramIndex = 2;
 
@@ -206,13 +211,11 @@ router.post("/download-report", async (req, res) => {
         res.attachment('transactions.csv');
         return res.send(csv);
       }
-
       if (format === 'JSON') {
         res.header('Content-Type', 'application/json');
         res.attachment('transactions.json');
         return res.send(JSON.stringify(formattedData));
       }
-
       if (format === 'TXT') {
         const txt = formattedData.map(item => 
           `№: ${item.index}, Тип: ${item.type}, Сумма: ${item.amount}, Описание: ${item.description}, Категория: ${item.category}, Дата: ${item.date}`
@@ -221,36 +224,93 @@ router.post("/download-report", async (req, res) => {
         res.attachment('transactions.txt');
         return res.send(txt);
       }
-
       if (format === 'PDF') {
-        const doc = new PDFDocument();
-      
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename=transactions.pdf');
-  
-        doc.pipe(res);
-  
-        doc.fontSize(18).fillColor('#1a73e8').text('Отчет по транзакциям', { align: 'center' });
-        doc.moveDown();
-  
-        doc.fontSize(10).fillColor('#333');
-        doc.text('№', 50, doc.y).text('Тип', 100, doc.y).text('Сумма', 200, doc.y).text('Описание', 300, doc.y).text('Категория', 400, doc.y).text('Дата', 500, doc.y);
-        doc.moveDown(0.5);
-  
-        formattedData.forEach(item => {
-          doc.text(`${item.index}`, 50, doc.y)
-            .text(`${item.type}`, 100, doc.y)
-            .text(`${item.amount}`, 200, doc.y)
-            .text(`${item.description}`, 300, doc.y)
-            .text(`${item.category}`, 400, doc.y)
-            .text(`${item.date}`, 500, doc.y);
-  
-          doc.moveDown(0.5);
-        });
-  
-        doc.end();
-      }
+        let htmlContent = `
+          <html>
+            <head>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  color: #333;
+                  margin: 20px;
+                }
+                table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin-bottom: 20px;
+                }
+                table, th, td {
+                  border: 1px solid #ccc;
+                }
+                th, td {
+                  padding: 8px;
+                  text-align: left;
+                }
+                th {
+                  background-color: #f2f2f2;
+                }
+                tr:nth-child(even) {
+                  background-color: #f9f9f9;
+                }
+                h1 {
+                  text-align: center;
+                  color: #1a73e8;
+                }
+                .footer {
+                  text-align: center;
+                  font-size: 10px;
+                  color: #aaa;
+                }
+              </style>
+            </head>
+            <body>
+              <h1>Отчет по транзакциям</h1>
+              <table>
+                <thead>
+                  <tr>
+                    <th>№</th>
+                    <th>Тип</th>
+                    <th>Сумма</th>
+                    <th>Описание</th>
+                    <th>Категория</th>
+                    <th>Дата</th>
+                  </tr>
+                </thead>
+                <tbody>
+        `;
 
+        formattedData.forEach(item => {
+          htmlContent += `
+            <tr>
+              <td>${item.index}</td>
+              <td>${item.type}</td>
+              <td>${item.amount}</td>
+              <td>${item.description}</td>
+              <td>${item.category}</td>
+              <td>${item.date}</td>
+            </tr>
+          `;
+        });
+
+        htmlContent += `
+                </tbody>
+              </table>
+              <div class="footer">Сгенерировано автоматически</div>
+            </body>
+          </html>
+        `;
+
+        pdf.create(htmlContent).then(pdfBuffer => {
+          res.header('Content-Type', 'application/pdf');
+          res.attachment('transactions.pdf');
+          res.send(pdfBuffer);
+        }).catch(err => {
+          console.error("Ошибка при создании PDF:", err);
+          res.status(500).json({ error: "Ошибка генерации PDF" });
+        });
+
+        return;
+      }
       if (format === 'EXCEL') {
         const ws = xlsx.utils.json_to_sheet(formattedData);
         const wb = xlsx.utils.book_new();
