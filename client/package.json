@@ -10,9 +10,13 @@
     "@testing-library/user-event": "^13.5.0",
     "chart.js": "^4.4.8",
     "date-fns": "^4.1.0",
+    "file-saver": "^2.0.5",
     "framer-motion": "^12.6.3",
+    "json2csv": "^6.0.0-alpha.2",
+    "jspdf": "^3.0.1",
     "lottie-player": "^1.0.0",
     "lottie-react": "^2.4.1",
+    "os-browserify": "^0.3.0",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.0.0",
@@ -24,7 +28,9 @@
     "recharts": "^2.15.2",
     "simplebar": "^6.3.0",
     "simplebar-react": "^3.3.0",
-    "web-vitals": "^2.1.4"
+    "stream-browserify": "^3.0.0",
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -50,5 +56,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "webpack-cli": "^6.0.1"
   }
 }

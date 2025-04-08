@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
-import {Notification, notif} from '../components/notification';
-import './css/profile.css';
+import { Notification, notif } from "../components/notification";
+import "./css/profile.css";
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState("");
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -32,6 +39,12 @@ const Profile = () => {
         }
 
         setUserData(data.userData);
+        setFormData({
+          username: data.userData.username,
+          email: data.userData.email,
+          password: "",
+          confirmPassword: "",
+        });
       } catch (err) {
         notif(`${err.message}`, "error");
         console.error("Ошибка при получении данных пользователя:", err);
@@ -110,41 +123,155 @@ const Profile = () => {
     }
   };
 
-  return (
-      <div className="profile-container">
-        <Header />
-        <Notification />
-        <h1>Личный Кабинет</h1>
-        {userData ? (
-          <div className="user-info">
-            <div className="avatar-container">
-              <img
-                className="avatar"
-                src={avatarPreview || `https://api.devsis.ru/avatars/${userData.image_path}`}
-                alt="User Avatar"
-              />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                className="avatar-input"
-                id="avatar-file-input"
-              />
-              <label htmlFor="avatar-file-input" className="avatar-input-label">
-                Изменить аватарку
-              </label>
-            </div>
+  const handleEditClick = () => {
+    setFormData({
+      username: userData?.username || "",
+      email: userData?.email || "",
+      password: "",
+      confirmPassword: "",
+    });
+    setIsPopupOpen(true);
+  };
 
-            <div className="info">
-              <p><strong>Login:</strong> {userData.login}</p>
-              <p><strong>Email:</strong> {userData.email}</p>
-              <p><strong>Имя:</strong> {userData.username}</p>
+  const handleClosePopup = () => {
+    setIsPopupOpen(false);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveChanges = async () => {
+    if (formData.password !== formData.confirmPassword) {
+      notif("Пароли не совпадают", "error");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await fetch("https://api.devsis.ru/user/updateUser", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Ошибка при обновлении данных");
+      }
+
+      setUserData(data.userData);
+      setIsPopupOpen(false);
+      notif("Данные успешно обновлены", "success");
+    } catch (err) {
+      notif(err.message, "error");
+    }
+  };
+
+  return (
+    <div className="profile-container">
+      <Header />
+      <Notification />
+      <h1>Личный Кабинет</h1>
+      {userData ? (
+        <div className="user-info">
+          <div className="avatar-container">
+            <img
+              className="avatar"
+              src={avatarPreview || `https://api.devsis.ru/avatars/${userData.image_path}`}
+              alt="User Avatar"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              className="avatar-input"
+              id="avatar-file-input"
+            />
+            <label htmlFor="avatar-file-input" className="avatar-input-label">
+              Изменить аватарку
+            </label>
+          </div>
+
+          <div className="info-item">
+            <div className="label">Login:</div>
+            <div className="value">{userData.login}</div>
+          </div>
+          <div className="info-item">
+            <div className="label">Имя:</div>
+            <div className="value">{userData.username}</div>
+          </div>
+          <div className="info-item last-info-item">
+            <div className="label">Email:</div>
+            <div className="value">{userData.email}</div>
+          </div>
+
+          <label className="edit-user-data" onClick={handleEditClick}>
+            Редактировать
+          </label>
+        </div>
+      ) : (
+        !error && <p>Загрузка данных...</p>
+      )}
+
+      {isPopupOpen && (
+        <div className="popup-overlay">
+          <div className="popup">
+            <h2>Редактировать данные</h2>
+            <div className="popup-inputs">
+              <label htmlFor="username">Имя</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+              />
+
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+              />
+
+              <label htmlFor="password">Пароль</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+              />
+
+              <label htmlFor="confirmPassword">Подтвердите пароль</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="popup-actions">
+              <button onClick={handleSaveChanges}>Сохранить</button>
+              <button onClick={handleClosePopup}>Отмена</button>
             </div>
           </div>
-        ) : (
-          !error && <p>Загрузка данных...</p>
-        )}
-      </div>
+        </div>
+      )}
+    </div>
   );
 };
 
