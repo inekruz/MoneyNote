@@ -319,7 +319,7 @@ router.post('/upload-report', upload.single('file'), (req, res) => {
         .on('end', async () => {
           try {
             for (const row of results) {
-              const { type, amount, description, category, date } = row;
+              const { 'Тип': type, 'Сумма': amount, 'Описание': description, 'Категория': category, 'Дата': date } = row;
               await pool.query(
                 `INSERT INTO transactions (type, amount, description, category_name, date, ulogin)
                  VALUES ($1, $2, $3, $4, $5, $6)`,
@@ -341,7 +341,7 @@ router.post('/upload-report', upload.single('file'), (req, res) => {
 
       try {
         for (const row of data) {
-          const { type, amount, description, category, date } = row;
+          const { Тип: type, Сумма: amount, Описание: description, Категория: category, Дата: date } = row;
           await pool.query(
             `INSERT INTO transactions (type, amount, description, category_name, date, ulogin)
              VALUES ($1, $2, $3, $4, $5, $6)`,
@@ -366,11 +366,11 @@ router.post('/upload-report', upload.single('file'), (req, res) => {
         lines.forEach(line => {
           const fields = line.split(',');
           results.push({
-            type: fields[1],
-            amount: fields[2],
-            description: fields[3],
-            category: fields[4],
-            date: fields[5],
+            type: fields[1]?.split(':')[1]?.trim(),
+            amount: fields[2]?.split(':')[1]?.trim(),
+            description: fields[3]?.split(':')[1]?.trim(),
+            category: fields[4]?.split(':')[1]?.trim(),
+            date: fields[5]?.split(':')[1]?.trim(),
           });
         });
 
@@ -396,4 +396,5 @@ router.post('/upload-report', upload.single('file'), (req, res) => {
     }
   });
 });
+
 module.exports = router;
