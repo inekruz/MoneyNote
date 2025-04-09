@@ -99,5 +99,21 @@ router.get('/new', authenticateToken, async (req, res) => {
     }
   });
 
+// Маршрут для обновления состояния уведомлений (is_read = true)
+router.patch('/notifications/read', authenticateToken, async (req, res) => {
+    const login = req.login;
+  
+    try {
+      const result = await pool.query(
+        'UPDATE notification SET is_read = true WHERE ulogin = $1 AND is_read = false RETURNING *',
+        [login]
+      );
+  
+      res.json({ message: 'Уведомления обновлены', updated: result.rowCount });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Ошибка при обновлении уведомлений' });
+    }
+  });
   
 module.exports = router;
