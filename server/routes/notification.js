@@ -100,7 +100,7 @@ router.get('/new', authenticateToken, async (req, res) => {
   });
 
 // Маршрут для обновления состояния уведомлений (is_read = true)
-router.patch('/notifications/read', authenticateToken, async (req, res) => {
+router.patch('/read', authenticateToken, async (req, res) => {
     const login = req.login;
   
     try {
