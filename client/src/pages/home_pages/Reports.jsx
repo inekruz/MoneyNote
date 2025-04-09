@@ -9,8 +9,10 @@ const Reports = () => {
     endDate: '',
     categoryId: ''
   });
+  // eslint-disable-next-line no-unused-vars
   const [format, setFormat] = useState('CSV');
   const [filePreview, setFilePreview] = useState('');
+  // eslint-disable-next-line no-unused-vars
   const [file, setFile] = useState(null);
 
   useEffect(() => {
