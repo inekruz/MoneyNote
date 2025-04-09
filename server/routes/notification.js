@@ -82,4 +82,22 @@ router.delete('/del/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// GET количество новых уведомлений
+router.get('/new', authenticateToken, async (req, res) => {
+    const login = req.login;
+  
+    try {
+      const result = await pool.query(
+        'SELECT COUNT(*) FROM notification WHERE ulogin = $1 AND is_read = false',
+        [login]
+      );
+      const count = result.rows[0].count;
+      res.json({ count: parseInt(count, 10) });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Ошибка при подсчете новых уведомлений' });
+    }
+  });
+
+  
 module.exports = router;
