@@ -97,24 +97,27 @@ const Reports = () => {
   
   const parseFileToJson = (fileContent) => {
     const rows = fileContent.split('\n');
-    
+  
     const parsedData = rows
       .map(row => {
         const columns = row.split(',');
   
         if (columns.length < 6) return null;
   
-        const rawType = columns[1]?.replace('Тип:', '').trim();
+        let rawType = columns[1]?.replace('Тип:', '').trim();
         const rawAmount = columns[2]?.replace('Сумма:', '').trim();
         const rawDescription = columns[3]?.replace('Описание:', '').trim();
         const rawCategory = columns[4]?.replace('Категория:', '').trim();
         const rawDate = columns[5]?.replace('Дата:', '').trim();
   
+        const type = rawType === 'Доход' ? 'income' :
+                     rawType === 'Расход' ? 'expense' : rawType;
+  
         const [day, month, year] = rawDate.split('/');
         const formattedDate = `${year}-${month}-${day}`;
   
         return {
-          type: rawType,
+          type,
           amount: parseFloat(rawAmount),
           description: rawDescription,
           category: rawCategory,
@@ -125,7 +128,6 @@ const Reports = () => {
   
     return parsedData;
   };
-   
 
   return (
     <div className="reports-container">

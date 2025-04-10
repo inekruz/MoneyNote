@@ -72,14 +72,14 @@ const Settings = () => {
   };
 
   return (
-    <div className="income-page">
+    <div className="settings-page">
       <h2>Настройки и уведомления</h2>
       <div className="settings-container">
         {[
           { key: 'is_income', label: 'Уведомления о доходах' },
           { key: 'is_expense', label: 'Уведомления о расходах' },
           { key: 'is_goals', label: 'Уведомления о целях' },
-          { key: 'is_reports', label: 'Уведомления о отчетах' },
+          { key: 'is_reports', label: 'Уведомления об отчетах' },
           { key: 'is_auth', label: 'Уведомления о входе' }
         ].map(({ key, label }) => (
           <div key={key} className="setting-item">
@@ -94,6 +94,19 @@ const Settings = () => {
             </label>
           </div>
         ))}
+      </div>
+      <div className="notifications-info">
+        <h3><span className="info-title-icon">⚠️</span> Как приходят уведомления?</h3>
+        <p>
+          Уведомления будут приходить как 
+          <span className="pill push-pill">PUSH</span> и 
+          <span className="pill email-pill">EMAIL</span>
+        </p>
+        <div className="warning-box">
+          <strong>Внимание:</strong> если у вас указана устаревшая или неверная почта — 
+          <span className="highlight"> обязательно обновите её</span>, чтобы не потерять доступ к аккаунту 
+          и получать важные уведомления.
+        </div>
       </div>
     </div>
   );
