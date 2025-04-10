@@ -10,7 +10,6 @@ const Settings = () => {
     is_auth: false,
   });
 
-  // Получение состояния при загрузке
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -22,7 +21,6 @@ const Settings = () => {
         });
 
         if (res.status === 404) {
-          // Если запись не найдена — создаём дефолтную
           await fetch('https://api.devsis.ru/ntf/updateCheck', {
             method: 'POST',
             headers: {
@@ -49,7 +47,6 @@ const Settings = () => {
     fetchSettings();
   }, []);
 
-  // Обновление состояния чекбокса
   const handleToggle = async (field) => {
     const updatedSettings = {
       ...settings,

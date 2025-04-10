@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Notification, notif } from "./notification";
+import { sendNotification } from './sendNotification';
+import { UAParser } from "ua-parser-js";
 import "./css/auth.css";
 
 const Auth = () => {
@@ -13,6 +15,32 @@ const Auth = () => {
   const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""]);
   const inputsRef = useRef([]);
   const navigate = useNavigate();
+
+  const getDeviceName = () => {
+    const parser = new UAParser();
+    const result = parser.getResult();
+  
+    const osName = result.os.name || "";
+    const osVersion = result.os.version || "";
+    const browser = result.browser.name || "";
+  
+    let deviceName = result.device.model || "";
+  
+    if (!deviceName) {
+      if (result.device.type === "mobile") {
+        deviceName = "Смартфон";
+      } else if (result.device.type === "tablet") {
+        deviceName = "Планшет";
+      } else if (result.device.type === "desktop" || result.os.name === "Windows" || result.os.name === "Mac OS") {
+        deviceName = "Компьютер";
+      } else {
+        deviceName = "Неизвестное устройство";
+      }
+    }
+  
+    return `${deviceName} (${osName} ${osVersion}, ${browser})`;
+  };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,10 +77,23 @@ const Auth = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier, code }),
       });
-
+  
       const data = await response.json();
+  
       if (response.ok) {
         localStorage.setItem("token", data.token);
+  
+        const ipRes = await fetch("https://api.ipify.org?format=json");
+        const ipData = await ipRes.json();
+        const ipAddress = ipData.ip;
+  
+        const device = getDeviceName();
+  
+        await sendNotification(
+          "Вход с нового устройства",
+          `Вошли с ${device}\nIP: ${ipAddress}`
+        );
+  
         navigate("/");
       } else {
         notif(data.error || "Неверный код", "error");
@@ -62,6 +103,7 @@ const Auth = () => {
       notif("Ошибка сети", "error");
     }
   };
+  
 
   const handleCodeChange = (index, value) => {
     if (!/^[0-9]?$/.test(value)) return;

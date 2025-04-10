@@ -6,12 +6,12 @@
 body {
   margin: 0;
   background: var(--primary-color);
-  font-family: "Poppins", sans-serif;
+  font-family: 'Nunito', sans-serif;
 }
   
-  .app {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
+.app {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}

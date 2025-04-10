@@ -19,7 +19,6 @@ const Charts = () => {
   const [endDate, setEndDate] = useState('');
   const [adviceText, setAdviceText] = useState('');
 
-  // Глобальные транзакции (все)
   const fetchAllTransactions = async () => {
     const token = localStorage.getItem("token");
     const res = await fetch('https://api.devsis.ru/inex/alltransactions', {
@@ -60,7 +59,6 @@ const Charts = () => {
     fetchTransactions();
   }, [fetchTransactions]);
 
-  // 📊 Расчёт общего баланса (используем все транзакции)
   const totalIncome = allTransactions
     .filter(tx => tx.type === 'income')
     .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
@@ -71,7 +69,6 @@ const Charts = () => {
 
   const balance = Math.max(0, totalIncome - totalExpense);
 
-  // 🧠 Теханализ и советы (используем отфильтрованные транзакции)
   useEffect(() => {
     if (transactions.length === 0) return;
 
@@ -85,7 +82,6 @@ const Charts = () => {
 
     const rawBalance = income - expense;
 
-    // Анализ расходов по категориям
     const expenseCategories = transactions
       .filter(tx => tx.type === 'expense')
       .reduce((acc, tx) => {
@@ -102,7 +98,6 @@ const Charts = () => {
       .filter(cat => cat.value > expense * 0.25)
       .sort((a, b) => b.value - a.value);
 
-    // Генерация совета
     const generateFinancialAdvice = () => {
       const advice = [];
 
