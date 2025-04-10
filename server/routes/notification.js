@@ -115,5 +115,63 @@ router.patch('/read', authenticateToken, async (req, res) => {
       res.status(500).json({ error: 'Ошибка при обновлении уведомлений' });
     }
   });
+
+// Маршрут для получения состояния уведомлений в настройках ( вкл / выкл )
+router.get('/getCheck', authenticateToken, async (req, res) => {
+    const login = req.login;
   
+    try {
+      const result = await pool.query(
+        'SELECT * FROM notification_check WHERE ulogin = $1',
+        [login]
+      );
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: 'Настройки уведомлений не найдены' });
+      }
+  
+      res.json(result.rows[0]);
+    } catch (error) {
+      console.error('Ошибка при получении настроек уведомлений:', error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  });
+
+router.post('/updateCheck', authenticateToken, async (req, res) => {
+    const login = req.login;
+    const { is_income, is_expense, is_goals, is_reports, is_auth } = req.body;
+  
+    try {
+      const checkExist = await pool.query(
+        'SELECT id FROM notification_check WHERE ulogin = $1',
+        [login]
+      );
+  
+      if (checkExist.rows.length === 0) {
+        await pool.query(
+          `INSERT INTO notification_check 
+            (ulogin, is_income, is_expense, is_goals, is_reports, is_auth)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [login, is_income, is_expense, is_goals, is_reports, is_auth]
+        );
+      } else {
+        await pool.query(
+          `UPDATE notification_check SET 
+            is_income = $1,
+            is_expense = $2,
+            is_goals = $3,
+            is_reports = $4,
+            is_auth = $5
+           WHERE ulogin = $6`,
+          [is_income, is_expense, is_goals, is_reports, is_auth, login]
+        );
+      }
+  
+      res.json({ message: 'Настройки уведомлений обновлены успешно' });
+    } catch (error) {
+      console.error('Ошибка при обновлении уведомлений:', error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  });
+
 module.exports = router;
