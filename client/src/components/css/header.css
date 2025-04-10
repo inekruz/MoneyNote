@@ -1,75 +1,96 @@
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px 15px;
-    background: var(--secondary-color);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(9px);
-    -webkit-backdrop-filter: blur(9px);
-    color: var(--text-color);
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-  }
-  
-  .logo {
-    cursor: pointer;
-    font-size: 25px;
-    align-items: center;
-    margin-top: 5px;
-    margin-left: 30px;
-  }
-  
-  .header-buttons {
-    display: flex;
-    align-items: center;
-    margin-right: 25px;
-  }
-  
-  .profile-button, .logout-button {
-    background-color: transparent;
-    color: var(--text-color);
-    border: none;
-    cursor: pointer;
-  }
-  
-  .profile-button:hover, .logout-button:hover {
-    opacity: 0.8;
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 15px;
+  background: var(--secondary-color);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+  color: var(--text-color);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
 
-  .profile-button {
-    padding: 5px 10px;
-    background-color: transparent;
-    color: var(--text-color);
-    border: none;
-    cursor: pointer;
-    font-size: 25px;
-  }
-  
-  .profile-button:hover {
-    background-color: transparent;
-  }
-  
-  .profile-button:focus {
-    outline: none;
-  }
+.logo {
+  cursor: pointer;
+  font-size: 25px;
+  align-items: center;
+  margin-top: 5px;
+  margin-left: 30px;
+}
 
-  .logout-button {
-    padding: 5px 30px;
-    background-color: transparent;
-    color: var(--text-color);
-    border: none;
-    cursor: pointer;
-    font-size: 25px;
-  }
-  
-  .logout-button:hover {
-    background-color: transparent;
-  }
-  
-  .logout-button:focus {
-    outline: none;
-  }
+.header-buttons {
+  display: flex;
+  align-items: center;
+  margin-right: 25px;
+}
+
+.profile-button, .logout-button, .notification-button {
+  background-color: transparent;
+  color: var(--text-color);
+  border: none;
+  cursor: pointer;
+}
+
+.profile-button:hover, .logout-button:hover, .notification-button:hover {
+  opacity: 0.8;
+}
+
+.profile-button, .notification-button {
+  padding: 5px 10px;
+  background-color: transparent;
+  color: var(--text-color);
+  border: none;
+  cursor: pointer;
+  font-size: 25px;
+}
+
+.profile-button:hover, .notification-button:hover {
+  background-color: transparent;
+}
+
+.profile-button:focus {
+  outline: none;
+}
+
+.logout-button {
+  padding: 5px 30px;
+  background-color: transparent;
+  color: var(--text-color);
+  border: none;
+  cursor: pointer;
+  font-size: 25px;
+}
+
+.logout-button:hover {
+  background-color: transparent;
+}
+
+.logout-button:focus {
+  outline: none;
+}
+
+.notification-button {
+  margin-right: 13px;
+  position: relative;
+}
+
+.notification-count {
+  position: absolute;
+  top: -5px;
+  right: -1px;
+  background-color: #ff0000;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 50%;
+  padding: 3px 7px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

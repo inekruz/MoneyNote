@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import {Notification, notif} from '../../components/notification';
 import './css/reports.css';
 
 const Reports = () => {
@@ -64,7 +65,7 @@ const Reports = () => {
 
   const handleFileSubmit = () => {
     if (!filePreview) {
-      alert("Пожалуйста, выберите файл для загрузки.");
+      notif("Пожалуйста, выберите файл для загрузки.", "error");
       return;
     }
   
@@ -83,14 +84,14 @@ const Reports = () => {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          alert("Данные успешно загружены!");
+          notif("Данные успешно загружены!", "success");
         } else {
-          alert("Ошибка при загрузке данных.");
+          notif("Ошибка при загрузке данных.", "error");
         }
       })
       .catch(err => {
         console.error(err);
-        alert("Ошибка при загрузке данных.");
+        notif("Ошибка при загрузке данных.", "error");
       });
   };
   
@@ -129,6 +130,7 @@ const Reports = () => {
   return (
     <div className="reports-container">
       <h2>Работа с Отчетами</h2>
+      <Notification/>
       <form className="filters-form">
         <div className="form-group">
           <label>Тип:</label>

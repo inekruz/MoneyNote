@@ -37,7 +37,7 @@
   transition: background-color 0.3s, transform 0.3s;
 
   @media (max-width: 1050px) {
-    font-size: 13.5px;
+    font-size: 12.7px;
 }
 }
 

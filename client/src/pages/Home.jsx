@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Header from "../components/Header";
+import NotificationPopup from "./Notification";
 import IncomeExpense from "./home_pages/IncomeExp";
 import Goals from "./home_pages/Goals";
 import Charts from "./home_pages/Charts";
@@ -9,6 +10,11 @@ import './css/home.css';
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState('income');
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const toggleNotifications = () => {
+    setShowNotifications(prev => !prev);
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -28,8 +34,10 @@ const Home = () => {
   };
 
   return (
-    <div className="home-container">
-      <Header />
+    <div className="home-container" style={{ position: "relative" }}>
+      <Header onToggleNotifications={toggleNotifications} />
+      {showNotifications && <NotificationPopup onClose={toggleNotifications} />}
+
       <div className="navigation">
         <button onClick={() => setActiveTab('income')}>Доходы & Расходы</button>
         <button onClick={() => setActiveTab('charts')}>Графики</button>
@@ -37,6 +45,7 @@ const Home = () => {
         <button onClick={() => setActiveTab('reports')}>Отчеты</button>
         <button onClick={() => setActiveTab('settings')}>Настройки</button>
       </div>
+
       <div className="content">
         {renderContent()}
       </div>

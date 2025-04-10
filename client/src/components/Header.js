@@ -1,10 +1,36 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUserAlt, FaSignOutAlt } from "react-icons/fa";
+import { FaUserAlt, FaSignOutAlt, FaBell } from "react-icons/fa";
 import './css/header.css';
 
-const Header = () => {
+const Header = ({ onToggleNotifications }) => {
+  const [newNotificationsCount, setNewNotificationsCount] = useState(0);
   const navigate = useNavigate();
+
+  const fetchNewNotificationsCount = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('https://api.devsis.ru/ntf/new', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setNewNotificationsCount(data.count);
+      } else {
+        console.error('Ошибка при получении количества новых уведомлений');
+      }
+    } catch (err) {
+      console.error('Ошибка:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNewNotificationsCount();
+  }, []);
 
   const handleProfileClick = () => {
     navigate("/profile");
@@ -21,8 +47,14 @@ const Header = () => {
         MINOTE
       </div>
       <div className="header-buttons">
-      <button className="profile-button" onClick={handleProfileClick}>
-          <FaUserAlt  />
+        <button className="notification-button" onClick={onToggleNotifications}>
+          <FaBell />
+          {newNotificationsCount > 0 && (
+            <span className="notification-count">{newNotificationsCount}</span>
+          )}
+        </button>
+        <button className="profile-button" onClick={handleProfileClick}>
+          <FaUserAlt />
         </button>
         <button className="logout-button" onClick={handleLogout}>
           <FaSignOutAlt />
