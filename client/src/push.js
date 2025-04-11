@@ -11,22 +11,28 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 export async function subscribeUser() {
-  if ('serviceWorker' in navigator) {
-    const registration = await navigator.serviceWorker.register('/sw.js');
-    
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY)
-    });
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    try {
+      const registration = await navigator.serviceWorker.ready;
 
-    const token = localStorage.getItem('token');
-    await fetch('https://api.minote.ru/ntf/subscribe', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ subscription })
-    });
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY)
+      });
+
+      const token = localStorage.getItem('token');
+      await fetch('https://api.minote.ru/ntf/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ subscription })
+      });
+    } catch (err) {
+      console.error('Ошибка при подписке на push:', err);
+    }
+  } else {
+    console.warn('Push уведомления не поддерживаются в этом браузере');
   }
 }
