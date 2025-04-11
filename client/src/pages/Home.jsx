@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import NotificationPopup from "./Notification";
 import IncomeExpense from "./home_pages/IncomeExp";
@@ -6,6 +6,7 @@ import Goals from "./home_pages/Goals";
 import Charts from "./home_pages/Charts";
 import Reports from "./home_pages/Reports";
 import Settings from "./home_pages/Settings";
+import { subscribeUser } from '../push';
 import './css/home.css';
 
 const Home = () => {
@@ -32,6 +33,18 @@ const Home = () => {
         return <div>Выберите опцию из меню</div>;
     }
   };
+
+  useEffect(() => {
+    const initPush = async () => {
+      try {
+        await subscribeUser();
+      } catch (err) {
+        console.error("Ошибка при подписке на push-уведомления:", err);
+      }
+    };
+
+    initPush();
+  }, []);
 
   return (
     <div className="home-container" style={{ position: "relative" }}>
