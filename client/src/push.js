@@ -7,32 +7,42 @@ function urlBase64ToUint8Array(base64String) {
     .replace(/_/g, '/');
 
   const rawData = atob(base64);
-  return new Uint8Array([...rawData].map((char) => char.charCodeAt(0)));
+  return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
 }
 
 export async function subscribeUser() {
-  if ('serviceWorker' in navigator && 'PushManager' in window) {
-    try {
-      const registration = await navigator.serviceWorker.ready;
-
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY)
-      });
-
-      const token = localStorage.getItem('token');
-      await fetch('https://api.minote.ru/ntf/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ subscription })
-      });
-    } catch (err) {
-      console.error('Ошибка при подписке на push:', err);
-    }
-  } else {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     console.warn('Push уведомления не поддерживаются в этом браузере');
+    return;
+  }
+
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      console.warn('Разрешение на уведомления не получено');
+      return;
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY)
+    });
+
+    const token = localStorage.getItem('token');
+
+    await fetch('https://api.minote.ru/ntf/subscribe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ subscription })
+    });
+
+    console.log('Подписка успешно выполнена');
+  } catch (err) {
+    console.error('Ошибка при подписке на push:', err);
   }
 }
