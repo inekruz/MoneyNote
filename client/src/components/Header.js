@@ -10,7 +10,7 @@ const Header = ({ onToggleNotifications }) => {
   const fetchNewNotificationsCount = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://api.devsis.ru/ntf/new', {
+      const response = await fetch('https://api.minote.ru/ntf/new', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

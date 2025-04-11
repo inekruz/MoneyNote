@@ -21,7 +21,7 @@ const Charts = () => {
 
   const fetchAllTransactions = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch('https://api.devsis.ru/inex/alltransactions', {
+    const res = await fetch('https://api.minote.ru/inex/alltransactions', {
       headers: {Authorization: `Bearer ${token}` }
     });
 
@@ -30,14 +30,14 @@ const Charts = () => {
   };
 
   const fetchCategories = async () => {
-    const res = await fetch('https://api.devsis.ru/inex/categories');
+    const res = await fetch('https://api.minote.ru/inex/categories');
     const data = await res.json();
     setCategories(data);
   };
 
   const fetchTransactions = useCallback(async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch('https://api.devsis.ru/inex/transactions', {
+    const res = await fetch('https://api.minote.ru/inex/transactions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`  },
       body: JSON.stringify({

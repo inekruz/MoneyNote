@@ -6,7 +6,7 @@ const NotificationPopup = ({ onClose }) => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch('https://api.devsis.ru/ntf/get', {
+      const response = await fetch('https://api.minote.ru/ntf/get', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -26,7 +26,7 @@ const NotificationPopup = ({ onClose }) => {
 
   const markNotificationsAsRead = async () => {
     try {
-      const response = await fetch('https://api.devsis.ru/ntf/read', {
+      const response = await fetch('https://api.minote.ru/ntf/read', {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -51,7 +51,7 @@ const NotificationPopup = ({ onClose }) => {
 
   const handleDelete = async (indexToDelete, id) => {
     try {
-      const response = await fetch(`https://api.devsis.ru/ntf/del/${id}`, {
+      const response = await fetch(`https://api.minote.ru/ntf/del/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,

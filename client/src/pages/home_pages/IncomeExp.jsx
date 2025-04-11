@@ -12,7 +12,7 @@ const Income = () => {
   const [filter, setFilter] = useState({ type: '', startDate: '', endDate: '', categoryId: '' });
 
   useEffect(() => {
-    fetch('https://api.devsis.ru/inex/categories')
+    fetch('https://api.minote.ru/inex/categories')
       .then(response => response.json())
       .then(data => setCategories(data))
       .catch(error => notif(`${error}`, "error"));
@@ -21,7 +21,7 @@ const Income = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const body = { ...filter };
-    fetch('https://api.devsis.ru/inex/transactions', {
+    fetch('https://api.minote.ru/inex/transactions', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json', 
@@ -45,7 +45,7 @@ const Income = () => {
       return;
     }
     const data = { type, amount, description, category_id: category };
-    fetch('https://api.devsis.ru/inex/add', {
+    fetch('https://api.minote.ru/inex/add', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json', 

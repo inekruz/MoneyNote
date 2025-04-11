@@ -1,7 +1,7 @@
 export const sendNotification = async (title, description) => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('https://api.devsis.ru/ntf/add', {
+      const response = await fetch('https://api.minote.ru/ntf/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

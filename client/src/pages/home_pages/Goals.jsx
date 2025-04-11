@@ -3,7 +3,7 @@ import { Notification, notif } from '../../components/notification';
 import { FiChevronDown } from 'react-icons/fi';
 import './css/goals.css';
 
-const API_URL = 'https://api.devsis.ru/goals';
+const API_URL = 'https://api.minote.ru/goals';
 
 const Goals = () => {
   const [goals, setGoals] = useState([]);

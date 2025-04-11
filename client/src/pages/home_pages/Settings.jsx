@@ -13,7 +13,7 @@ const Settings = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const res = await fetch('https://api.devsis.ru/ntf/getCheck', {
+        const res = await fetch('https://api.minote.ru/ntf/getCheck', {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -21,7 +21,7 @@ const Settings = () => {
         });
 
         if (res.status === 404) {
-          await fetch('https://api.devsis.ru/ntf/updateCheck', {
+          await fetch('https://api.minote.ru/ntf/updateCheck', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ const Settings = () => {
     setSettings(updatedSettings);
 
     try {
-      await fetch('https://api.devsis.ru/ntf/updateCheck', {
+      await fetch('https://api.minote.ru/ntf/updateCheck', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

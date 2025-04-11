@@ -50,7 +50,7 @@ const Auth = () => {
       : { identifier, password };
 
     try {
-      const response = await fetch(`https://api.devsis.ru/auth/${endpoint}`, {
+      const response = await fetch(`https://api.minote.ru/auth/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
@@ -72,7 +72,7 @@ const Auth = () => {
   const handleVerifyCode = async () => {
     const code = verificationCode.join("");
     try {
-      const response = await fetch(`https://api.devsis.ru/auth/verify-code`, {
+      const response = await fetch(`https://api.minote.ru/auth/verify-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier, code }),

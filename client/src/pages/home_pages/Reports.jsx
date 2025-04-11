@@ -17,7 +17,7 @@ const Reports = () => {
   const [file, setFile] = useState(null);
 
   useEffect(() => {
-    fetch('https://api.devsis.ru/inex/categories')
+    fetch('https://api.minote.ru/inex/categories')
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error(err));
@@ -27,7 +27,7 @@ const Reports = () => {
     setFormat(format);
     const token = localStorage.getItem('token');
     
-    fetch('https://api.devsis.ru/inex/download-report', {
+    fetch('https://api.minote.ru/inex/download-report', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -73,7 +73,7 @@ const Reports = () => {
   console.log(parsedData)
     const token = localStorage.getItem('token');
     
-    fetch('https://api.devsis.ru/inex/upload-report', {
+    fetch('https://api.minote.ru/inex/upload-report', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
