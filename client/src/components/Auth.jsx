@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Notification, notif } from "./notification";
 import { sendNotification } from './sendNotification';
 import { UAParser } from "ua-parser-js";
-import { subscribeUser } from '../push';
+import { subscribeUser } from "../push";
 import "./css/auth.css";
 
 const Auth = () => {
@@ -83,7 +83,7 @@ const Auth = () => {
   
       if (response.ok) {
         localStorage.setItem("token", data.token);
-  
+        await subscribeUser();
         const ipRes = await fetch("https://api.ipify.org?format=json");
         const ipData = await ipRes.json();
         const ipAddress = ipData.ip;
@@ -96,7 +96,6 @@ const Auth = () => {
         );
   
         navigate("/");
-        await subscribeUser();
         
       } else {
         notif(data.error || "Неверный код", "error");
