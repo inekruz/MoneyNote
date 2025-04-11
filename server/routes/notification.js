@@ -2,7 +2,6 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 const router = express.Router();
-const webpush = require('../webpush');
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -38,16 +37,6 @@ router.post('/add', authenticateToken, async (req, res) => {
       'INSERT INTO notification (title, description, ulogin) VALUES ($1, $2, $3) RETURNING *',
       [title, description, login]
     );
-
-    const subRes = await pool.query(
-      'SELECT subscription FROM push_subscriptions WHERE ulogin = $1',
-      [login]
-    );
-
-    if (subRes.rows.length > 0) {
-      const subscription = subRes.rows[0].subscription;
-      await webpush.sendNotification(subscription, JSON.stringify({ title, description }));
-    }
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -185,23 +174,5 @@ router.post('/updateCheck', authenticateToken, async (req, res) => {
       res.status(500).json({ message: 'Ошибка сервера' });
     }
   });
-
-router.post('/subscribe', authenticateToken, async (req, res) => {
-  const { subscription } = req.body;
-  const login = req.login;
-
-  try {
-    await pool.query(
-      `INSERT INTO push_subscriptions (ulogin, subscription)
-        VALUES ($1, $2)
-        ON CONFLICT (ulogin) DO UPDATE SET subscription = EXCLUDED.subscription`,
-      [login, subscription]
-    );
-    res.status(201).json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Ошибка при сохранении подписки' });
-  }
-});
 
 module.exports = router;
