@@ -17,27 +17,28 @@ const pool = new Pool({
 });
 
 const SECRET_KEY = process.env.SECRET_KEY || "none";
+
 /**
-@openapi
-/categories:
-  get:
-    summary: Получение всех категорий расходов
-    description: Получает список всех категорий для расходов.
-    responses:
-      200:
-        description: Список категорий расходов
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  name:
-                    type: string
-*/
+ * @openapi
+ * /categories:
+ *   get:
+ *     summary: Получение всех категорий расходов
+ *     description: Получает список всех категорий для расходов.
+ *     responses:
+ *       200:
+ *         description: Список категорий расходов
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   name:
+ *                     type: string
+ */
 
 // Получение всех категорий
 router.get("/categories", async (req, res) => {
@@ -51,48 +52,48 @@ router.get("/categories", async (req, res) => {
 });
 
 /**
-@openapi
-/add:
-  post:
-    summary: Добавление новой транзакции (доход/расход)
-    description: Добавляет новую транзакцию в базу данных, включая информацию о типе, сумме, описании и категории.
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              type:
-                type: string
-              amount:
-                type: number
-              description:
-                type: string
-              category_id:
-                type: integer
-    responses:
-      201:
-        description: Транзакция успешно добавлена
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                type:
-                  type: string
-                amount:
-                  type: number
-                description:
-                  type: string
-                category_id:
-                  type: integer
-      400:
-        description: Неверные данные в запросе
-      500:
-        description: Ошибка на сервере
+ * @openapi
+ * /add:
+ *   post:
+ *     summary: Добавление новой транзакции (доход/расход)
+ *     description: Добавляет новую транзакцию в базу данных, включая информацию о типе, сумме, описании и категории.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               type:
+ *                 type: string
+ *               amount:
+ *                 type: number
+ *               description:
+ *                 type: string
+ *               category_id:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Транзакция успешно добавлена
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 type:
+ *                   type: string
+ *                 amount:
+ *                   type: number
+ *                 description:
+ *                   type: string
+ *                 category_id:
+ *                   type: integer
+ *       400:
+ *         description: Неверные данные в запросе
+ *       500:
+ *         description: Ошибка на сервере
  */
 
 // Добавление дохода или расхода
@@ -131,34 +132,34 @@ router.post("/add", async (req, res) => {
 });
 
 /**
-@openapi
-/alltransactions:
-  get:
-    summary: Получение всех транзакций текущего пользователя
-    description: Получает все транзакции для авторизованного пользователя.
-    responses:
-      200:
-        description: Список транзакций
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  type:
-                    type: string
-                  amount:
-                    type: number
-                  description:
-                    type: string
-                  category_id:
-                    type: integer
-                  date:
-                    type: string
-                    format: date-time
+ * @openapi
+ * /alltransactions:
+ *   get:
+ *     summary: Получение всех транзакций текущего пользователя
+ *     description: Получает все транзакции для авторизованного пользователя.
+ *     responses:
+ *       200:
+ *         description: Список транзакций
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   type:
+ *                     type: string
+ *                   amount:
+ *                     type: number
+ *                   description:
+ *                     type: string
+ *                   category_id:
+ *                     type: integer
+ *                   date:
+ *                     type: string
+ *                     format: date-time
  */
 
 // Получение всех транзакций
@@ -187,56 +188,57 @@ router.get("/alltransactions", async (req, res) => {
 });
 
 /**
-@openapi
-/transactions:
-  post:
-    summary: Получение транзакций с фильтрацией
-    description: Получает транзакции по фильтрам: типу, дате и категории.
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              type:
-                type: string
-              startDate:
-                type: string
-                format: date
-              endDate:
-                type: string
-                format: date
-              categoryId:
-                type: integer
-    responses:
-      200:
-        description: Список транзакций по фильтрам
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  type:
-                    type: string
-                  amount:
-                    type: number
-                  description:
-                    type: string
-                  category_name:
-                    type: string
-                  date:
-                    type: string
-                    format: date-time
-      400:
-        description: Неверный формат данных
-      500:
-        description: Ошибка на сервере
+ * @openapi
+ * /transactions:
+ *   post:
+ *     summary: Получение транзакций с фильтрацией
+ *     description: Получает транзакции по фильтрам: типу, дате и категории.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               type:
+ *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date
+ *               endDate:
+ *                 type: string
+ *                 format: date
+ *               categoryId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Список транзакций по фильтрам
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   type:
+ *                     type: string
+ *                   amount:
+ *                     type: number
+ *                   description:
+ *                     type: string
+ *                   category_name:
+ *                     type: string
+ *                   date:
+ *                     type: string
+ *                     format: date-time
+ *       400:
+ *         description: Неверный формат данных
+ *       500:
+ *         description: Ошибка на сервере
  */
+
 // Получение транзакций с фильтрацией 
 router.post("/transactions", async (req, res) => {
   const { type, startDate, endDate, categoryId } = req.body;
@@ -306,39 +308,40 @@ const fontPath = path.join(__dirname, 'DejaVuSans.ttf');
 const fontBase64 = fs.readFileSync(fontPath, 'base64');
 
 /**
-@openapi
-/download-report:
-  post:
-    summary: Генерация и скачивание отчета по транзакциям
-    description: Создает отчет в выбранном формате (CSV, JSON, TXT, PDF, EXCEL) по транзакциям.
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              type:
-                type: string
-              startDate:
-                type: string
-                format: date
-              endDate:
-                type: string
-                format: date
-              categoryId:
-                type: integer
-              format:
-                type: string
-                enum: [CSV, JSON, TXT, PDF, EXCEL]
-    responses:
-      200:
-        description: Файл отчета успешно сгенерирован
-      400:
-        description: Ошибка генерации отчета или неверный формат
-      500:
-        description: Ошибка на сервере
+ * @openapi
+ * /download-report:
+ *   post:
+ *     summary: Генерация и скачивание отчета по транзакциям
+ *     description: Создает отчет в выбранном формате (CSV, JSON, TXT, PDF, EXCEL) по транзакциям.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               type:
+ *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date
+ *               endDate:
+ *                 type: string
+ *                 format: date
+ *               categoryId:
+ *                 type: integer
+ *               format:
+ *                 type: string
+ *                 enum: [CSV, JSON, TXT, PDF, EXCEL]
+ *     responses:
+ *       200:
+ *         description: Файл отчета успешно сгенерирован
+ *       400:
+ *         description: Ошибка генерации отчета или неверный формат
+ *       500:
+ *         description: Ошибка на сервере
  */
+
 // Маршрут для скачивания отчета
 router.post("/download-report", async (req, res) => {
   const { type, startDate, endDate, categoryId, format } = req.body;
@@ -473,39 +476,40 @@ router.post("/download-report", async (req, res) => {
 });
 
 /**
-@openapi
-/upload-report:
-  post:
-    summary: Загрузка отчета и добавление транзакций в базу
-    description: Загружает транзакции из файла в базу данных для текущего пользователя.
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              type: object
-              properties:
-                type:
-                  type: string
-                amount:
-                  type: number
-                description:
-                  type: string
-                category:
-                  type: string
-                date:
-                  type: string
-                  format: date-time
-    responses:
-      200:
-        description: Данные успешно загружены
-      400:
-        description: Ошибка загрузки данных или неверная категория
-      500:
-        description: Ошибка на сервере
+ * @openapi
+ * /upload-report:
+ *   post:
+ *     summary: Загрузка отчета и добавление транзакций в базу
+ *     description: Загружает транзакции из файла в базу данных для текущего пользователя.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 type:
+ *                   type: string
+ *                 amount:
+ *                   type: number
+ *                 description:
+ *                   type: string
+ *                 category:
+ *                   type: string
+ *                 date:
+ *                   type: string
+ *                   format: date-time
+ *     responses:
+ *       200:
+ *         description: Данные успешно загружены
+ *       400:
+ *         description: Ошибка загрузки данных или неверная категория
+ *       500:
+ *         description: Ошибка на сервере
  */
+
 // Маршрут для загрузки данных
 router.post('/upload-report', async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
