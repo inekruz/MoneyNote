@@ -5,6 +5,7 @@ const InExpRoutes = require('./routes/incomeExp');
 const UserRoutes = require('./routes/profile');
 const GoalsRoutes = require('./routes/goals');
 const NotificationRoutes = require('./routes/notification');
+const startDailyNotifications = require('./utils/dailyNotifier');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -25,3 +26,5 @@ app.listen(port, () => {
 app.get('/a', (req, res) => {
     res.json({ status: 'Server is running', timestamp: new Date().toISOString() });
 });
+
+startDailyNotifications();
