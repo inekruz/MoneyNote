@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUserAlt, FaSignOutAlt, FaBell } from "react-icons/fa";
+import { FaUserAlt, FaSignOutAlt, FaBell, FaCode } from "react-icons/fa";
 
 import './css/header.css';
 
-
-// Компонент заголовка с кнопками профиля, выхода и уведомлений
+// Компонент заголовка с кнопками профиля, выхода, уведомлений и разработчика
 const Header = ({ onToggleNotifications }) => {
   const [newNotificationsCount, setNewNotificationsCount] = useState(0);
   const navigate = useNavigate();
-
 
   // Получение количества новых уведомлений
   const fetchNewNotificationsCount = async () => {
@@ -35,18 +33,15 @@ const Header = ({ onToggleNotifications }) => {
     }
   };
 
-
   // Запрос уведомлений при монтировании компонента
   useEffect(() => {
     fetchNewNotificationsCount();
   }, []);
 
-
   // Переход в профиль
   const handleProfileClick = () => {
     navigate("/profile");
   };
-
 
   // Выход из аккаунта
   const handleLogout = () => {
@@ -54,6 +49,10 @@ const Header = ({ onToggleNotifications }) => {
     navigate("/auth");
   };
 
+  // Переход на страницу документации для разработчиков
+  const handleDeveloperDocsClick = () => {
+    window.open("https://api.minote.ru/docs", "_blank");
+  };
 
   return (
     <header className="header">
@@ -62,6 +61,10 @@ const Header = ({ onToggleNotifications }) => {
       </div>
 
       <div className="header-buttons">
+      <button className="developer-docs-button" onClick={handleDeveloperDocsClick}>
+          <FaCode />
+        </button>
+
         <button className="notification-button" onClick={onToggleNotifications}>
           <FaBell />
           {newNotificationsCount > 0 && (
@@ -76,6 +79,7 @@ const Header = ({ onToggleNotifications }) => {
         <button className="logout-button" onClick={handleLogout}>
           <FaSignOutAlt />
         </button>
+
       </div>
     </header>
   );

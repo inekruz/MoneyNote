@@ -20,7 +20,6 @@ const Home = () => {
     setShowNotifications(prev => !prev);
   };
 
-
   // Функция для отображения контента в зависимости от выбранной вкладки
   const renderContent = () => {
     switch (activeTab) {
@@ -60,6 +59,12 @@ const Home = () => {
         {/* Отображение содержимого в зависимости от активной вкладки */}
         {renderContent()}
       </div>
+
+      {/* Футер с информацией о правах */}
+      <footer>
+       <b> &copy; 2025 MINOTE </b> Все права защищены
+      </footer>
+
     </div>
   );
 };

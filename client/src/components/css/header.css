@@ -49,6 +49,18 @@
   font-size: 25px;
 }
 
+.developer-docs-button {
+  padding: 5px 10px;
+  background-color: var(--button-color);
+  color: var(--text-color);
+  border: none;
+  cursor: pointer;
+  font-size: 25px;
+  display: flex;
+  margin-right: 12px;
+  margin-bottom: 5px;
+}
+
 .profile-button:hover, .notification-button:hover {
   background-color: transparent;
 }

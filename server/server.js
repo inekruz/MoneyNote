@@ -63,7 +63,7 @@ const swaggerOptions = {
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 // Настройка маршрута для отображения документации
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Маршруты для различных частей API
 app.use('/auth', authRoutes); // Маршруты для аутентификации
