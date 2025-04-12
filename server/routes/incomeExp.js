@@ -192,7 +192,12 @@ router.get("/alltransactions", async (req, res) => {
  * /transactions:
  *   post:
  *     summary: Получение транзакций с фильтрацией
- *     description: Получает транзакции по фильтрам: типу, дате и категории.
+ *     description: >
+ *       Получает транзакции по фильтрам: типу, дате и категории.
+ *       В параметрах запроса можно указать:
+ *       - Тип транзакции (например, доход или расход)
+ *       - Начальную и конечную дату
+ *       - ID категории для фильтрации по категории.
  *     requestBody:
  *       required: true
  *       content:
@@ -238,7 +243,6 @@ router.get("/alltransactions", async (req, res) => {
  *       '500':
  *         description: Ошибка на сервере
  */
-
 
 // Получение транзакций с фильтрацией 
 router.post("/transactions", async (req, res) => {
