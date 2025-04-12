@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import "./css/notification.css";
 
+
+// Компонент всплывающего окна с уведомлениями
 const NotificationPopup = ({ onClose }) => {
   const [notifications, setNotifications] = useState([]);
 
+
+  // Функция для получения уведомлений с сервера
   const fetchNotifications = async () => {
     try {
       const response = await fetch('https://api.minote.ru/ntf/get', {
@@ -24,6 +28,8 @@ const NotificationPopup = ({ onClose }) => {
     }
   };
 
+
+  // Функция для отметки уведомлений как прочитанных
   const markNotificationsAsRead = async () => {
     try {
       const response = await fetch('https://api.minote.ru/ntf/read', {
@@ -43,12 +49,15 @@ const NotificationPopup = ({ onClose }) => {
     }
   };
 
+
+  // Вызов функции получения уведомлений и отметки прочитанных при монтировании компонента
   useEffect(() => {
     fetchNotifications();
-
     markNotificationsAsRead();
   }, []);
 
+
+  // Функция для удаления уведомлений
   const handleDelete = async (indexToDelete, id) => {
     try {
       const response = await fetch(`https://api.minote.ru/ntf/del/${id}`, {
@@ -75,6 +84,7 @@ const NotificationPopup = ({ onClose }) => {
         <button className="close-button" onClick={onClose}>×</button>
       </div>
       <div className="notification-list">
+        {/* Отображение списка уведомлений */}
         {notifications.map((note, index) => (
           <div className={`notification-item ${note.is_read ? 'read' : 'unread'}`} key={note.id}>
             <div className="notification-content">
@@ -91,6 +101,7 @@ const NotificationPopup = ({ onClose }) => {
             </button>
           </div>
         ))}
+        {/* Если уведомлений нет, отображаем текст */}
         {notifications.length === 0 && (
           <div className="no-notifications">Нет новых уведомлений.</div>
         )}

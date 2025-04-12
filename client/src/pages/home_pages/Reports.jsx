@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import {Notification, notif} from '../../components/notification';
+import { Notification, notif } from '../../components/notification';
 import './css/reports.css';
 
 const Reports = () => {
+  // Состояния для категорий, фильтров, предпросмотра файлов и самого файла
   const [categories, setCategories] = useState([]);
   const [filters, setFilters] = useState({
     type: '',
@@ -10,12 +11,15 @@ const Reports = () => {
     endDate: '',
     categoryId: ''
   });
+  
+  // Формат файла и предпросмотр файлов
   // eslint-disable-next-line no-unused-vars
   const [format, setFormat] = useState('CSV');
   const [filePreview, setFilePreview] = useState('');
   // eslint-disable-next-line no-unused-vars
   const [file, setFile] = useState(null);
 
+  // Получаем категории из API при монтировании компонента
   useEffect(() => {
     fetch('https://api.minote.ru/inex/categories')
       .then(res => res.json())
@@ -23,10 +27,12 @@ const Reports = () => {
       .catch(err => console.error(err));
   }, []);
 
+  // Обработчик скачивания отчета в выбранном формате
   const handleDownload = (format) => {
     setFormat(format);
     const token = localStorage.getItem('token');
-    
+
+    // Отправляем POST-запрос для скачивания отчета
     fetch('https://api.minote.ru/inex/download-report', {
       method: 'POST',
       headers: {
@@ -45,11 +51,13 @@ const Reports = () => {
       .catch(err => console.error(err));
   };
 
+  // Обработчик загрузки файла
   const handleFileUpload = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
       setFile(selectedFile);
 
+      // Для Excel файлов предпросмотр невозможен
       if (selectedFile.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
         setFilePreview("Предпросмотр для Excel файлов невозможен.");
       } else {
@@ -63,16 +71,19 @@ const Reports = () => {
     }
   };
 
+  // Обработчик отправки файла на сервер
   const handleFileSubmit = () => {
     if (!filePreview) {
       notif("Пожалуйста, выберите файл для загрузки.", "error");
       return;
     }
-  
+
     const parsedData = parseFileToJson(filePreview);
-  console.log(parsedData)
+    console.log(parsedData);
+
     const token = localStorage.getItem('token');
-    
+
+    // Отправляем данные на сервер для загрузки
     fetch('https://api.minote.ru/inex/upload-report', {
       method: 'POST',
       headers: {
@@ -94,28 +105,29 @@ const Reports = () => {
         notif("Ошибка при загрузке данных.", "error");
       });
   };
-  
+
+  // Функция для парсинга содержимого файла в формат JSON
   const parseFileToJson = (fileContent) => {
     const rows = fileContent.split('\n');
   
     const parsedData = rows
       .map(row => {
         const columns = row.split(',');
-  
+
         if (columns.length < 6) return null;
-  
+
         let rawType = columns[1]?.replace('Тип:', '').trim();
         const rawAmount = columns[2]?.replace('Сумма:', '').trim();
         const rawDescription = columns[3]?.replace('Описание:', '').trim();
         const rawCategory = columns[4]?.replace('Категория:', '').trim();
         const rawDate = columns[5]?.replace('Дата:', '').trim();
-  
+
         const type = rawType === 'Доход' ? 'income' :
                      rawType === 'Расход' ? 'expense' : rawType;
-  
+
         const [day, month, year] = rawDate.split('/');
         const formattedDate = `${year}-${month}-${day}`;
-  
+
         return {
           type,
           amount: parseFloat(rawAmount),
@@ -125,7 +137,7 @@ const Reports = () => {
         };
       })
       .filter(row => row !== null);
-  
+
     return parsedData;
   };
 

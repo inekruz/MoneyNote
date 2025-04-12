@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './css/settings.css';
 
 const Settings = () => {
+  // Состояние для хранения текущих настроек уведомлений
   const [settings, setSettings] = useState({
     is_income: false,
     is_expense: false,
@@ -10,22 +11,25 @@ const Settings = () => {
     is_auth: false,
   });
 
+  // Используем useEffect для загрузки настроек при первом рендере компонента
   useEffect(() => {
     const fetchSettings = async () => {
       try {
+        // Получаем текущие настройки уведомлений с сервера
         const res = await fetch('https://api.minote.ru/ntf/getCheck', {
           method: 'GET',
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
+            Authorization: `Bearer ${localStorage.getItem('token')}` // Используем токен из localStorage
           }
         });
 
         if (res.status === 404) {
+          // Если настройки не найдены, устанавливаем их по умолчанию
           await fetch('https://api.minote.ru/ntf/updateCheck', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('token')}`
+              Authorization: `Bearer ${localStorage.getItem('token')}` // Отправляем запрос с токеном
             },
             body: JSON.stringify({
               is_income: false,
@@ -36,6 +40,7 @@ const Settings = () => {
             })
           });
         } else {
+          // Если настройки найдены, сохраняем их в состояние
           const data = await res.json();
           setSettings(data);
         }
@@ -45,23 +50,25 @@ const Settings = () => {
     };
 
     fetchSettings();
-  }, []);
+  }, []); // useEffect запускается один раз при монтировании компонента
 
+  // Обработчик изменения состояния уведомлений
   const handleToggle = async (field) => {
     const updatedSettings = {
       ...settings,
-      [field]: !settings[field]
+      [field]: !settings[field] // Переключаем состояние выбранного уведомления
     };
-    setSettings(updatedSettings);
+    setSettings(updatedSettings); // Обновляем состояние в компоненте
 
     try {
+      // Отправляем обновленные настройки на сервер
       await fetch('https://api.minote.ru/ntf/updateCheck', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token')}` // Отправляем запрос с токеном
         },
-        body: JSON.stringify(updatedSettings)
+        body: JSON.stringify(updatedSettings) // Отправляем обновленные настройки
       });
     } catch (error) {
       console.error('Ошибка при обновлении настроек:', error);
@@ -72,6 +79,7 @@ const Settings = () => {
     <div className="settings-page">
       <h2>Настройки и уведомления</h2>
       <div className="settings-container">
+        {/* Перебираем настройки и генерируем элементы для каждого из них */}
         {[
           { key: 'is_income', label: 'Уведомления о доходах' },
           { key: 'is_expense', label: 'Уведомления о расходах' },
@@ -84,8 +92,8 @@ const Settings = () => {
             <label className="switch">
               <input
                 type="checkbox"
-                checked={settings[key]}
-                onChange={() => handleToggle(key)}
+                checked={settings[key]} // Состояние чекбокса зависит от текущих настроек
+                onChange={() => handleToggle(key)} // Обработчик переключения
               />
               <span className="slider round"></span>
             </label>

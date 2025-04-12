@@ -8,38 +8,43 @@ import '@lottiefiles/lottie-player';
 import './css/charts.css';
 import { format, parseISO } from 'date-fns';
 
+// Цвета для диаграмм
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#ff6666', '#66cccc'];
 
 const Charts = () => {
-  const [categories, setCategories] = useState([]);
-  const [transactions, setTransactions] = useState([]);
-  const [allTransactions, setAllTransactions] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [adviceText, setAdviceText] = useState('');
+  // Состояния для данных
+  const [categories, setCategories] = useState([]); // Категории
+  const [transactions, setTransactions] = useState([]); // Транзакции
+  const [allTransactions, setAllTransactions] = useState([]); // Все транзакции
+  const [selectedCategory, setSelectedCategory] = useState(''); // Выбранная категория
+  const [startDate, setStartDate] = useState(''); // Дата начала
+  const [endDate, setEndDate] = useState(''); // Дата окончания
+  const [adviceText, setAdviceText] = useState(''); // Рекомендации
 
+  // Получение всех транзакций
   const fetchAllTransactions = async () => {
     const token = localStorage.getItem("token");
     const res = await fetch('https://api.minote.ru/inex/alltransactions', {
-      headers: {Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` }
     });
 
     const data = await res.json();
-    setAllTransactions(data);
+    setAllTransactions(data); // Сохранение всех транзакций
   };
 
+  // Получение категорий
   const fetchCategories = async () => {
     const res = await fetch('https://api.minote.ru/inex/categories');
     const data = await res.json();
-    setCategories(data);
+    setCategories(data); // Сохранение категорий
   };
 
+  // Получение транзакций с учетом выбранных фильтров
   const fetchTransactions = useCallback(async () => {
     const token = localStorage.getItem("token");
     const res = await fetch('https://api.minote.ru/inex/transactions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`  },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({
         categoryId: selectedCategory || undefined,
         startDate: startDate || undefined,
@@ -47,28 +52,34 @@ const Charts = () => {
       }),
     });
     const data = await res.json();
-    setTransactions(data);
+    setTransactions(data); // Сохранение транзакций
   }, [selectedCategory, startDate, endDate]);
 
+  // Загрузка данных при монтировании компонента
   useEffect(() => {
     fetchCategories();
     fetchAllTransactions();
   }, []);
 
+  // Получение транзакций при изменении фильтров
   useEffect(() => {
     fetchTransactions();
   }, [fetchTransactions]);
 
+  // Вычисление общего дохода
   const totalIncome = allTransactions
     .filter(tx => tx.type === 'income')
     .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
 
+  // Вычисление общего расхода
   const totalExpense = allTransactions
     .filter(tx => tx.type === 'expense')
     .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
 
+  // Баланс
   const balance = Math.max(0, totalIncome - totalExpense);
 
+  // Вычисление и генерация рекомендаций по финансовому состоянию
   useEffect(() => {
     if (transactions.length === 0) return;
 
@@ -98,6 +109,7 @@ const Charts = () => {
       .filter(cat => cat.value > expense * 0.25)
       .sort((a, b) => b.value - a.value);
 
+    // Генерация рекомендаций
     const generateFinancialAdvice = () => {
       const advice = [];
 
@@ -137,18 +149,22 @@ const Charts = () => {
     };
 
     const finalAdvice = generateFinancialAdvice();
-    setAdviceText(finalAdvice.join('\n'));
+    setAdviceText(finalAdvice.join('\n')); // Установка текста рекомендаций
   }, [transactions]);
 
+  // Подготовка данных для графика
   const chartData = transactions.map(tx => ({
     date: format(parseISO(tx.date), 'dd.MM.yy'),
     amount: tx.amount,
     category: tx.category_name,
   }));
 
+  // Общее количество транзакций
   const totalTransactions = transactions.length;
+  // Сумма всех транзакций
   const totalAmount = transactions.reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
 
+  // Данные для круговой диаграммы
   const pieData = Object.values(
     transactions.reduce((acc, tx) => {
       const category = tx.category_name || 'Неизвестно';
@@ -165,6 +181,7 @@ const Charts = () => {
     <div className="charts-container">
       <h2>📊 Графики и диаграммы</h2>
 
+      {/* Фильтры для выбора категории и дат */}
       <div className="filters">
         <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
           <option value="">Все категории</option>
@@ -177,12 +194,14 @@ const Charts = () => {
         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
       </div>
 
+      {/* Резюме по транзакциям */}
       <div className="summary">
         <p>Транзакций: {totalTransactions}</p>
         <p>Суммарно: {totalAmount.toFixed(2)} ₽</p>
         <p>💰 Текущий баланс: {balance.toFixed(2)} ₽</p>
       </div>
 
+      {/* Рекомендации по финансовому состоянию */}
       {adviceText && (
         <div className="summary" style={{ whiteSpace: 'pre-wrap', marginTop: '1rem' }}>
           <strong>📌 Рекомендации:</strong>
@@ -190,6 +209,7 @@ const Charts = () => {
         </div>
       )}
 
+      {/* Круговая диаграмма */}
       {pieData.length > 0 && (
         <motion.div
           className="donut-chart"
@@ -227,6 +247,7 @@ const Charts = () => {
         </motion.div>
       )}
 
+      {/* График доходов и расходов */}
       <motion.div
         className="chart-wrapper"
         initial={{ opacity: 0, y: 30 }}

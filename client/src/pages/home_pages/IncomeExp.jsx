@@ -2,49 +2,58 @@ import React, { useState, useEffect } from "react";
 import './css/income.css';
 import { Notification, notif } from "../../components/notification";
 
+// Основной компонент для отображения доходов и расходов
 const Income = () => {
+  // Состояния для управления данными транзакций и фильтров
   const [transactions, setTransactions] = useState([]);
-  const [type, setType] = useState('income');
+  const [type, setType] = useState('income'); // Тип транзакции: доход или расход
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [categories, setCategories] = useState([]);
   const [filter, setFilter] = useState({ type: '', startDate: '', endDate: '', categoryId: '' });
 
+  // Загрузка категорий при монтировании компонента
   useEffect(() => {
     fetch('https://api.minote.ru/inex/categories')
       .then(response => response.json())
-      .then(data => setCategories(data))
-      .catch(error => notif(`${error}`, "error"));
+      .then(data => setCategories(data)) // Устанавливаем категории
+      .catch(error => notif(`${error}`, "error")); // Обработка ошибок
   }, []);
 
+  // Загружаем транзакции в зависимости от фильтров
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const body = { ...filter };
+    const body = { ...filter }; // Используем текущие фильтры
     fetch('https://api.minote.ru/inex/transactions', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json', 
         Authorization: `Bearer ${token}`,  
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(body), // Отправляем фильтры на сервер
     })
       .then(response => response.json())
-      .then(data => setTransactions(Array.isArray(data) ? data : []))
+      .then(data => setTransactions(Array.isArray(data) ? data : [])) // Устанавливаем транзакции
       .catch(error => {
-        notif(`${error}`, "error");
-        setTransactions([]);
+        notif(`${error}`, "error"); // Обработка ошибок
+        setTransactions([]); // Очистка транзакций при ошибке
       });
-  }, [filter]);
+  }, [filter]); // Перезапуск при изменении фильтров
 
+  // Функция для добавления новой транзакции
   const handleSubmit = (e) => {
     const token = localStorage.getItem("token");
     e.preventDefault();
+
+    // Проверка валидности введенной суммы
     if (amount <= 0) {
       notif("Сумма должна быть положительной!", "error");
       return;
     }
+
     const data = { type, amount, description, category_id: category };
+    // Отправка данных транзакции на сервер
     fetch('https://api.minote.ru/inex/add', {
       method: 'POST',
       headers: { 
@@ -55,20 +64,24 @@ const Income = () => {
     })
       .then(response => response.json())
       .then(newTransaction => {
+        // Обновление списка транзакций
         setTransactions(prev => [...prev, newTransaction]);
+        // Очистка формы
         setAmount('');
         setDescription('');
         setCategory('');
-        window.location.reload();
+        window.location.reload(); // Перезагрузка страницы после добавления
       })
-      .catch(error => notif(`${error}`, "error"));
+      .catch(error => notif(`${error}`, "error")); // Обработка ошибок
   };
 
+  // Обработчик изменений фильтров
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilter(prev => ({ ...prev, [name]: value }));
+    setFilter(prev => ({ ...prev, [name]: value })); // Обновляем фильтры
   };
 
+  // Форматирование даты для отображения
   const formatDate = (date) => {
     const d = new Date(date);
     const year = d.getFullYear();
@@ -77,12 +90,12 @@ const Income = () => {
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');
 
-    return `${year}-${month}-${day} в ${hours}:${minutes}`;
-};
+    return `${year}-${month}-${day} в ${hours}:${minutes}`; // Форматируем дату
+  };
 
   return (
     <div className="income-page">
-      <Notification />
+      <Notification /> {/* Компонент уведомлений */}
       <h2 className="income-title">Доходы & Расходы</h2>
       <form className="transaction-form">
         <div className="form-row">
@@ -110,9 +123,9 @@ const Income = () => {
           </label>
         </div>
       </form>
-        <button onClick={handleSubmit} className="form-button">Добавить</button>
+      <button onClick={handleSubmit} className="form-button">Добавить</button>
 
-        <h2 className="income-title2">История</h2>
+      <h2 className="income-title2">История</h2>
       <div className="filter-container">
         <label className="filter-label">Тип<br></br>  
           <select className="form-select-1" name="type" value={filter.type} onChange={handleFilterChange}>

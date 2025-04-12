@@ -3,9 +3,11 @@ import { Notification, notif } from '../../components/notification';
 import { FiChevronDown } from 'react-icons/fi';
 import './css/goals.css';
 
+// URL для работы с целями
 const API_URL = 'https://api.minote.ru/goals';
 
 const Goals = () => {
+  // Состояния для управления целями и вводом данных
   const [goals, setGoals] = useState([]);
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
@@ -14,10 +16,12 @@ const Goals = () => {
   const [addAmount, setAddAmount] = useState('');
   const [editIndex, setEditIndex] = useState(null);
 
+  // Загружаем цели при монтировании компонента
   useEffect(() => {
     fetchGoals();
   }, []);
 
+  // Функция для получения целей с API
   const fetchGoals = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -33,6 +37,7 @@ const Goals = () => {
     }
   };
 
+  // Проверка валидности даты окончания цели
   const isValidDate = (dateStr) => {
     const selectedDate = new Date(dateStr);
     const today = new Date();
@@ -40,12 +45,14 @@ const Goals = () => {
     return !isNaN(selectedDate.getTime()) && selectedDate >= today;
   };
 
+  // Сброс значений ввода
   const resetInputs = () => {
     setTitle('');
     setAmount('');
     setDeadline('');
   };
 
+  // Обработка добавления новой цели
   const handleAddGoal = async () => {
     if (!title || !amount || !deadline) {
       notif('Пожалуйста, заполните все поля.', 'error');
@@ -90,6 +97,7 @@ const Goals = () => {
     }
   };
 
+  // Обработка удаления цели
   const handleDelete = async (index) => {
     const goal = goals[index];
     try {
@@ -107,6 +115,7 @@ const Goals = () => {
     }
   };
 
+  // Функция для изменения состояния расширения цели
   const handleToggleExpand = (index) => {
     const goal = goals[index];
     if (Number(goal.saved) >= Number(goal.amount)) return;
@@ -115,6 +124,7 @@ const Goals = () => {
     setAddAmount('');
   };
 
+  // Обработка добавления накопленной суммы
   const handleAddSaved = async (index) => {
     if (!addAmount || isNaN(addAmount) || parseFloat(addAmount) <= 0) {
       notif('Введите корректную сумму.', 'error');
@@ -141,6 +151,7 @@ const Goals = () => {
     }
   };
 
+  // Обработка редактирования цели
   const handleEditGoal = async (index) => {
     if (!title || !amount || !deadline) {
       notif('Пожалуйста, заполните все поля.', 'error');
@@ -189,6 +200,7 @@ const Goals = () => {
     }
   };
 
+  // Старт редактирования цели
   const startEdit = (index) => {
     const goal = goals[index];
     setTitle(goal.title);
@@ -202,6 +214,7 @@ const Goals = () => {
       <Notification />
       <h2>Финансовые цели</h2>
 
+      {/* Форма для добавления или редактирования цели */}
       <div className="goal-input-container">
         <input
           type="text"
@@ -228,6 +241,7 @@ const Goals = () => {
         )}
       </div>
 
+      {/* Список целей */}
       <div className="goal-list">
         {[...goals]
           .map((goal, index) => ({ ...goal, originalIndex: index }))

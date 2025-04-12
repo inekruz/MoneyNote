@@ -15,6 +15,7 @@ const Profile = () => {
     confirmPassword: "",
   });
 
+  // Получение данных пользователя при загрузке компонента
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem("token");
@@ -54,6 +55,7 @@ const Profile = () => {
     fetchUserData();
   }, []);
 
+  // Получение аватарки пользователя
   useEffect(() => {
     if (userData && userData.image_path) {
       fetchAvatar();
@@ -82,6 +84,7 @@ const Profile = () => {
     }
   };
 
+  // Обработка изменения аватарки
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -123,6 +126,7 @@ const Profile = () => {
     }
   };
 
+  // Открытие попапа для редактирования данных
   const handleEditClick = () => {
     setFormData({
       username: userData?.username || "",
@@ -137,6 +141,7 @@ const Profile = () => {
     setIsPopupOpen(false);
   };
 
+  // Обработка изменений в форме
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -145,6 +150,7 @@ const Profile = () => {
     }));
   };
 
+  // Сохранение изменений данных пользователя
   const handleSaveChanges = async () => {
     if (formData.password !== formData.confirmPassword) {
       notif("Пароли не совпадают", "error");

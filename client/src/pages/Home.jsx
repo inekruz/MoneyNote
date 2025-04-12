@@ -8,14 +8,20 @@ import Reports from "./home_pages/Reports";
 import Settings from "./home_pages/Settings";
 import './css/home.css';
 
+
+// Главный компонент для страницы "Домой"
 const Home = () => {
   const [activeTab, setActiveTab] = useState('income');
   const [showNotifications, setShowNotifications] = useState(false);
 
+  
+  // Функция переключения состояния уведомлений
   const toggleNotifications = () => {
     setShowNotifications(prev => !prev);
   };
 
+
+  // Функция для отображения контента в зависимости от выбранной вкладки
   const renderContent = () => {
     switch (activeTab) {
       case 'income':
@@ -35,10 +41,14 @@ const Home = () => {
 
   return (
     <div className="home-container" style={{ position: "relative" }}>
+      {/* Компонент Header с кнопкой для управления уведомлениями */}
       <Header onToggleNotifications={toggleNotifications} />
+
+      {/* Показ уведомлений, если флаг showNotifications активен */}
       {showNotifications && <NotificationPopup onClose={toggleNotifications} />}
 
       <div className="navigation">
+        {/* Кнопки для переключения вкладок */}
         <button onClick={() => setActiveTab('income')}>Доходы & Расходы</button>
         <button onClick={() => setActiveTab('charts')}>Графики</button>
         <button onClick={() => setActiveTab('goals')}>Цели</button>
@@ -47,6 +57,7 @@ const Home = () => {
       </div>
 
       <div className="content">
+        {/* Отображение содержимого в зависимости от активной вкладки */}
         {renderContent()}
       </div>
     </div>
