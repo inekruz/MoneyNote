@@ -29,7 +29,7 @@ const authenticateToken = (req, res, next) => {
 
 /**
  * @openapi
- * /add:
+ * /ntf/add:
  *   post:
  *     summary: Добавление уведомления
  *     description: Добавляет новое уведомление для пользователя
@@ -85,7 +85,7 @@ router.post('/add', authenticateToken, async (req, res) => {
 
 /**
  * @openapi
- * /get:
+ * /ntf/get:
  *   get:
  *     summary: Получение всех уведомлений
  *     description: Получает список уведомлений для пользователя
@@ -130,7 +130,7 @@ router.get('/get', authenticateToken, async (req, res) => {
 
 /**
  * @openapi
- * /del/{id}:
+ * /ntf/del/{id}:
  *   delete:
  *     summary: Удаление уведомления
  *     description: Удаляет уведомление по ID для пользователя
@@ -181,7 +181,7 @@ router.delete('/del/:id', authenticateToken, async (req, res) => {
 
 /**
  * @openapi
- * /new:
+ * /ntf/new:
  *   get:
  *     summary: Получение количества новых уведомлений
  *     description: Подсчитывает количество новых уведомлений для пользователя
@@ -218,7 +218,7 @@ router.get('/new', authenticateToken, async (req, res) => {
 
   /**
  * @openapi
- * /read:
+ * /ntf/read:
  *   patch:
  *     summary: Обновление состояния уведомлений
  *     description: Устанавливает состояние уведомлений как прочитанное
@@ -255,7 +255,7 @@ router.patch('/read', authenticateToken, async (req, res) => {
 
   /**
  * @openapi
- * /getCheck:
+ * /ntf/getCheck:
  *   get:
  *     summary: Получение состояния уведомлений в настройках
  *     description: Получает настройки уведомлений для пользователя
@@ -306,7 +306,7 @@ router.get('/getCheck', authenticateToken, async (req, res) => {
 
 /**
  * @openapi
- * /updateCheck:
+ * /ntf/updateCheck:
  *   post:
  *     summary: Обновление состояния уведомлений в настройках
  *     description: Обновляет настройки уведомлений для пользователя

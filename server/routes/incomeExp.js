@@ -20,7 +20,7 @@ const SECRET_KEY = process.env.SECRET_KEY || "none";
 
 /**
  * @openapi
- * /categories:
+ * /inex/categories:
  *   get:
  *     summary: Получение всех категорий расходов
  *     description: Получает список всех категорий для расходов.
@@ -53,7 +53,7 @@ router.get("/categories", async (req, res) => {
 
 /**
  * @openapi
- * /add:
+ * /inex/add:
  *   post:
  *     summary: Добавление новой транзакции (доход/расход)
  *     description: Добавляет новую транзакцию в базу данных, включая информацию о типе, сумме, описании и категории.
@@ -133,7 +133,7 @@ router.post("/add", async (req, res) => {
 
 /**
  * @openapi
- * /alltransactions:
+ * /inex/alltransactions:
  *   get:
  *     summary: Получение всех транзакций текущего пользователя
  *     description: Получает все транзакции для авторизованного пользователя.
@@ -189,7 +189,7 @@ router.get("/alltransactions", async (req, res) => {
 
 /**
  * @openapi
- * /transactions:
+ * /inex/transactions:
  *   post:
  *     summary: Получение транзакций с фильтрацией
  *     description: >
@@ -314,7 +314,7 @@ const fontBase64 = fs.readFileSync(fontPath, 'base64');
 
 /**
  * @openapi
- * /download-report:
+ * /inex/download-report:
  *   post:
  *     summary: Генерация и скачивание отчета по транзакциям
  *     description: Создает отчет в выбранном формате (CSV, JSON, TXT, PDF, EXCEL) по транзакциям.
@@ -482,7 +482,7 @@ router.post("/download-report", async (req, res) => {
 
 /**
  * @openapi
- * /upload-report:
+ * /inex/upload-report:
  *   post:
  *     summary: Загрузка отчета и добавление транзакций в базу
  *     description: Загружает транзакции из файла в базу данных для текущего пользователя.

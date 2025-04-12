@@ -38,7 +38,7 @@ const upload = multer({
 
 /**
  * @openapi
- * /getUser:
+ * /user/getUser:
  *   get:
  *     summary: Получение данных о пользователе
  *     description: Получает данные о пользователе на основе токена
@@ -109,7 +109,7 @@ router.get("/getUser", (req, res) => {
 
 /**
  * @openapi
- * /updateUser:
+ * /user/updateUser:
  *   post:
  *     summary: Обновление данных пользователя
  *     description: Обновляет данные пользователя (username, email, password)
@@ -217,7 +217,7 @@ router.post("/updateUser", async (req, res) => {
 
 /**
  * @openapi
- * /setAvatar:
+ * /user/setAvatar:
  *   post:
  *     summary: Обновление аватарки пользователя
  *     description: Заменяет аватарку пользователя
@@ -293,7 +293,7 @@ router.post("/updateUser", async (req, res) => {
 
 /**
  * @openapi
- * /getAvatar:
+ * /user/getAvatar:
  *   get:
  *     summary: Получение аватарки пользователя
  *     description: Получает аватарку пользователя
