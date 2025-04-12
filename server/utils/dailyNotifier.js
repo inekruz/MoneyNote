@@ -1,16 +1,19 @@
+// Импортирование необходимых библиотек
 const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const { Pool } = require("pg");
 require("dotenv").config();
 
+// Настройка подключения к базе данных PostgreSQL
 const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
-  });
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+});
 
+// Настройка SMTP для отправки email уведомлений
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -19,81 +22,91 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Объект для хранения шаблонов уведомлений
 const notificationsMap = {
-    is_income: {
-      title: "💸 Пора пополнить копилку!",
-      description: "Не забудьте внести доходы за сегодня — дайте деньгам знать, что они вам нужны! 😉",
-    },
-    is_expense: {
-      title: "📉 Расходы под контролем",
-      description: "Добавьте сегодняшние траты и не дайте деньгам ускользнуть незамеченными!",
-    },
-    is_goals: {
-      title: "🎯 Финансовые цели ждут вас",
-      description: "Проверьте прогресс: каждая копейка приближает вас к мечте!",
-    },
-    is_reports: {
-      title: "📊 Ваш дневной отчёт",
-      description: "Загляните в отчёты и узнайте, как вы управляли своими финансами сегодня.",
-    },
-  };
-  
+  is_income: {
+    title: "💸 Пора пополнить копилку!",
+    description: "Не забудьте внести доходы за сегодня — дайте деньгам знать, что они вам нужны! 😉",
+  },
+  is_expense: {
+    title: "📉 Расходы под контролем",
+    description: "Добавьте сегодняшние траты и не дайте деньгам ускользнуть незамеченными!",
+  },
+  is_goals: {
+    title: "🎯 Финансовые цели ждут вас",
+    description: "Проверьте прогресс: каждая копейка приближает вас к мечте!",
+  },
+  is_reports: {
+    title: "📊 Ваш дневной отчёт",
+    description: "Загляните в отчёты и узнайте, как вы управляли своими финансами сегодня.",
+  },
+};
 
+// Функция для отправки уведомлений пользователям
 async function sendNotifications() {
   const client = await pool.connect();
   try {
+    // Получаем пользователей, которым нужно отправить уведомления
     const res = await client.query("SELECT * FROM notification_check");
 
+    // Обрабатываем каждого пользователя
     for (const row of res.rows) {
       const { ulogin, last_notified } = row;
       const now = new Date();
       const diffHours = (now - new Date(last_notified)) / 1000 / 60 / 60;
 
+      // Если прошло менее 24 часов с последнего уведомления, пропускаем пользователя
       if (diffHours < 24) continue;
 
+      // Обрабатываем все типы уведомлений
       for (const key of Object.keys(notificationsMap)) {
         if (row[key]) {
+          // Получаем email пользователя из базы данных
           const userRes = await client.query(
             "SELECT email FROM users WHERE login = $1",
             [ulogin]
           );
           const email = userRes.rows[0]?.email;
           if (!email) continue;
-      
+
           let { title, description } = notificationsMap[key];
-      
+
+          // Обрабатываем специальные уведомления для финансовых целей
           if (key === "is_goals") {
             const goalsRes = await client.query(
               "SELECT title, amount, saved, deadline FROM goals WHERE ulogin = $1",
               [ulogin]
             );
-      
+
             const goalMessages = [];
-      
             const nowDate = new Date();
-      
+
+            // Проверяем статус каждой финансовой цели
             for (const goal of goalsRes.rows) {
               const { title: goalTitle, amount, saved, deadline } = goal;
               const progress = saved / amount;
               const deadlineDate = new Date(deadline);
               const daysLeft = Math.ceil((deadlineDate - nowDate) / (1000 * 60 * 60 * 24));
-      
+
+              // Добавляем сообщения в зависимости от прогресса по целям
               if (progress >= 0.8 && progress < 1) {
                 goalMessages.push(`Вы почти накопили на ${goalTitle}! Осталось совсем чуть-чуть.`);
               }
-      
+
               if (daysLeft <= 7 && progress < 1) {
                 goalMessages.push(`Поторопитесь! До дедлайна цели "${goalTitle}" осталось ${daysLeft} дн${daysLeft === 1 ? "ь" : "я"}.`);
               }
             }
-      
+
+            // Обновляем описание уведомления в зависимости от целей
             if (goalMessages.length > 0) {
               description = goalMessages.join("\n");
             } else {
               description = "Проверьте прогресс: каждая копейка приближает вас к мечте!";
             }
           }
-      
+
+          // Отправка email уведомления
           await transporter.sendMail({
             from: process.env.SMTP_EMAIL,
             to: email,
@@ -110,17 +123,18 @@ async function sendNotifications() {
                 <p style="font-size: 13px; color: #95a5a6;">Это автоматическое сообщение. Вы можете отключить уведомления в настройках вашего профиля на Minote.ru</p>
               </div>
             </div>
-          `,          
+          `,
           });
-      
+
+          // Сохраняем отправленное уведомление в базе данных
           await client.query(
             "INSERT INTO notification (title, description, ulogin) VALUES ($1, $2, $3)",
             [title, description, ulogin]
           );
         }
       }
-      
 
+      // Обновляем время последнего уведомления для пользователя
       await client.query(
         "UPDATE notification_check SET last_notified = NOW() WHERE ulogin = $1",
         [ulogin]
@@ -133,6 +147,7 @@ async function sendNotifications() {
   }
 }
 
+// Функция для запуска ежедневных уведомлений
 function startDailyNotifications() {
   cron.schedule("0 10 * * *", () => {
     console.log("✅ Запуск ежедневной задачи уведомлений:", new Date().toLocaleString());
@@ -140,4 +155,5 @@ function startDailyNotifications() {
   });
 }
 
+// Экспортируем функцию для использования в других частях приложения
 module.exports = startDailyNotifications;

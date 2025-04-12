@@ -27,7 +27,32 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// 📥 Создание цели
+/**
+ * @openapi
+ * /goals/create:
+ *   post:
+ *     summary: Создание новой цели
+ *     description: Позволяет пользователю создать цель с указанием суммы, срока и заголовка.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               amount:
+ *                 type: number
+ *               deadline:
+ *                 type: string
+ *                 format: date
+ *     responses:
+ *       200:
+ *         description: Успешно создана цель
+ *       500:
+ *         description: Ошибка при создании цели
+ */
 router.post('/create', authenticateToken, async (req, res) => {
   const { title, amount, deadline } = req.body;
   const login = req.login;
@@ -45,7 +70,18 @@ router.post('/create', authenticateToken, async (req, res) => {
   }
 });
 
-// 📤 Получение всех целей пользователя
+/**
+ * @openapi
+ * /goals/getGoals:
+ *   get:
+ *     summary: Получение всех целей пользователя
+ *     description: Возвращает список всех целей пользователя, отсортированных по дате создания.
+ *     responses:
+ *       200:
+ *         description: Список целей пользователя
+ *       500:
+ *         description: Ошибка при получении целей
+ */
 router.get('/getGoals', authenticateToken, async (req, res) => {
   const login = req.login;
 
@@ -61,7 +97,41 @@ router.get('/getGoals', authenticateToken, async (req, res) => {
   }
 });
 
-// ✏️ Обновление цели
+/**
+ * @openapi
+ * /goals/{id}:
+ *   put:
+ *     summary: Обновление информации о цели
+ *     description: Обновляет информацию о цели пользователя, включая заголовок, сумму и срок.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Идентификатор цели для обновления
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               amount:
+ *                 type: number
+ *               deadline:
+ *                 type: string
+ *                 format: date
+ *     responses:
+ *       200:
+ *         description: Цель обновлена успешно
+ *       404:
+ *         description: Цель не найдена
+ *       500:
+ *         description: Ошибка при обновлении цели
+ */
 router.put('/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { title, amount, deadline } = req.body;
@@ -82,7 +152,36 @@ router.put('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// ➕ Добавить сумму к накопленному
+/**
+ * @openapi
+ * /goals/{id}/add:
+ *   post:
+ *     summary: Добавление суммы к накоплению по цели
+ *     description: Добавляет сумму к уже накопленной на цель.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Идентификатор цели
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Сумма добавлена к цели
+ *       404:
+ *         description: Цель не найдена
+ *       500:
+ *         description: Ошибка при добавлении накоплений
+ */
 router.post('/:id/add', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { amount } = req.body;
@@ -102,7 +201,27 @@ router.post('/:id/add', authenticateToken, async (req, res) => {
   }
 });
 
-// ❌ Удаление цели
+/**
+ * @openapi
+ * /goals/{id}:
+ *   delete:
+ *     summary: Удаление цели
+ *     description: Удаляет указанную цель пользователя.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Идентификатор цели для удаления
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Цель удалена
+ *       404:
+ *         description: Цель не найдена
+ *       500:
+ *         description: Ошибка при удалении цели
+ */
 router.delete('/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const login = req.login;

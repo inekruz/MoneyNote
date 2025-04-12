@@ -1,5 +1,8 @@
+// Импортируем необходимые библиотеки и модули
 const express = require('express');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 const authRoutes = require('./routes/auth');
 const InExpRoutes = require('./routes/incomeExp');
 const UserRoutes = require('./routes/profile');
@@ -7,24 +10,56 @@ const GoalsRoutes = require('./routes/goals');
 const NotificationRoutes = require('./routes/notification');
 const startDailyNotifications = require('./utils/dailyNotifier');
 
+// Создаем экземпляр приложения Express
 const app = express();
 const port = process.env.PORT || 3001;
 
+// Настройка CORS для разрешения кросс-доменных запросов
 app.use(cors());
+
+// Настройка парсинга JSON в теле запросов
 app.use(express.json());
-app.use('/auth', authRoutes);
-app.use('/inex', InExpRoutes);
-app.use('/user', UserRoutes);
-app.use('/goals', GoalsRoutes);
-app.use('/ntf', NotificationRoutes);
 
+// Настройка Swagger-JSDoc
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API Documentation',
+      version: '1.0.0',
+      description: 'Документация для RESTful API',
+    },
+    servers: [
+      {
+        url: 'https://api.minote.ru/',
+      },
+    ],
+  },
+  apis: ['./routes/*.js', './server.js'],
+};
+
+// Генерация спецификации документации
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
+// Настройка маршрута для отображения документации
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Маршруты для различных частей API
+app.use('/auth', authRoutes); // Маршруты для аутентификации
+app.use('/inex', InExpRoutes); // Маршруты для учета доходов и расходов
+app.use('/user', UserRoutes); // Маршруты для профиля пользователя
+app.use('/goals', GoalsRoutes); // Маршруты для финансовых целей
+app.use('/ntf', NotificationRoutes); // Маршруты для уведомлений
+
+// Запуск сервера
 app.listen(port, () => {
-    console.log(`HTTP сервер запущен на порту ${port}`);
+  console.log(`HTTP сервер запущен на порту ${port}`);
 });
 
-// Проверка работы сервера
-app.get('/a', (req, res) => {
-    res.json({ status: 'Server is running', timestamp: new Date().toISOString() });
+// Простейшая проверка работы сервера
+app.get('/', (req, res) => {
+  res.json({ status: 'Что тебе тут нужно? Ну держи время :)', timestamp: new Date().toISOString() });
 });
 
+// Запуск функции для отправки ежедневных уведомлений
 startDailyNotifications();

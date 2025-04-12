@@ -27,6 +27,44 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+/**
+ * @openapi
+ * /add:
+ *   post:
+ *     summary: Добавление уведомления
+ *     description: Добавляет новое уведомление для пользователя
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Уведомление успешно добавлено
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 title:
+ *                   type: string
+ *                 description:
+ *                   type: string
+ *                 created_at:
+ *                   type: string
+ *                   format: date-time
+ *       500:
+ *         description: Ошибка при создании уведомления
+ */
+
 // Добавление уведомления
 router.post('/add', authenticateToken, async (req, res) => {
   const { title, description } = req.body;
@@ -45,6 +83,35 @@ router.post('/add', authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /get:
+ *   get:
+ *     summary: Получение всех уведомлений
+ *     description: Получает список уведомлений для пользователя
+ *     responses:
+ *       200:
+ *         description: Список уведомлений
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   title:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   created_at:
+ *                     type: string
+ *                     format: date-time
+ *       500:
+ *         description: Ошибка при получении уведомлений
+ */
+
 // Получение всех уведомлений
 router.get('/get', authenticateToken, async (req, res) => {
   const login = req.login;
@@ -60,6 +127,35 @@ router.get('/get', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Ошибка при получении уведомлений' });
   }
 });
+
+/**
+ * @openapi
+ * /del/{id}:
+ *   delete:
+ *     summary: Удаление уведомления
+ *     description: Удаляет уведомление по ID для пользователя
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID уведомления
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Уведомление удалено
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Уведомление не найдено
+ *       500:
+ *         description: Ошибка при удалении уведомления
+ */
 
 // Удаление уведомлений
 router.delete('/del/:id', authenticateToken, async (req, res) => {
@@ -83,6 +179,26 @@ router.delete('/del/:id', authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /new:
+ *   get:
+ *     summary: Получение количества новых уведомлений
+ *     description: Подсчитывает количество новых уведомлений для пользователя
+ *     responses:
+ *       200:
+ *         description: Количество новых уведомлений
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 count:
+ *                   type: integer
+ *       500:
+ *         description: Ошибка при подсчете новых уведомлений
+ */
+
 // GET количество новых уведомлений
 router.get('/new', authenticateToken, async (req, res) => {
     const login = req.login;
@@ -100,6 +216,26 @@ router.get('/new', authenticateToken, async (req, res) => {
     }
   });
 
+  /**
+ * @openapi
+ * /read:
+ *   patch:
+ *     summary: Обновление состояния уведомлений
+ *     description: Устанавливает состояние уведомлений как прочитанное
+ *     responses:
+ *       200:
+ *         description: Уведомления обновлены
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Ошибка при обновлении уведомлений
+ */
+
 // Маршрут для обновления состояния уведомлений (is_read = true)
 router.patch('/read', authenticateToken, async (req, res) => {
     const login = req.login;
@@ -116,6 +252,36 @@ router.patch('/read', authenticateToken, async (req, res) => {
       res.status(500).json({ error: 'Ошибка при обновлении уведомлений' });
     }
   });
+
+  /**
+ * @openapi
+ * /getCheck:
+ *   get:
+ *     summary: Получение состояния уведомлений в настройках
+ *     description: Получает настройки уведомлений для пользователя
+ *     responses:
+ *       200:
+ *         description: Настройки уведомлений
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 is_income:
+ *                   type: boolean
+ *                 is_expense:
+ *                   type: boolean
+ *                 is_goals:
+ *                   type: boolean
+ *                 is_reports:
+ *                   type: boolean
+ *                 is_auth:
+ *                   type: boolean
+ *       404:
+ *         description: Настройки уведомлений не найдены
+ *       500:
+ *         description: Ошибка при получении настроек уведомлений
+ */
 
 // Маршрут для получения состояния уведомлений в настройках ( вкл / выкл )
 router.get('/getCheck', authenticateToken, async (req, res) => {
@@ -137,6 +303,36 @@ router.get('/getCheck', authenticateToken, async (req, res) => {
       res.status(500).json({ message: 'Ошибка сервера' });
     }
   });
+
+/**
+ * @openapi
+ * /updateCheck:
+ *   post:
+ *     summary: Обновление состояния уведомлений в настройках
+ *     description: Обновляет настройки уведомлений для пользователя
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               is_income:
+ *                 type: boolean
+ *               is_expense:
+ *                 type: boolean
+ *               is_goals:
+ *                 type: boolean
+ *               is_reports:
+ *                 type: boolean
+ *               is_auth:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Настройки уведомлений обновлены успешно
+ *       500:
+ *         description: Ошибка при обновлении уведомлений
+ */
 
 router.post('/updateCheck', authenticateToken, async (req, res) => {
     const login = req.login;
