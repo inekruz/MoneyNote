@@ -49,8 +49,7 @@ async function sendNotifications() {
       const now = new Date();
       const diffHours = (now - new Date(last_notified)) / 1000 / 60 / 60;
 
-    //   if (diffHours < 24) continue;
-      if (diffHours < 0.01) continue; // ~36 секунд
+      if (diffHours < 24) continue;
 
       for (const key of Object.keys(notificationsMap)) {
         if (row[key]) {
@@ -134,18 +133,11 @@ async function sendNotifications() {
   }
 }
 
-// function startDailyNotifications() {
-//   cron.schedule("0 10 * * *", () => {
-//     console.log("✅ Запуск ежедневной задачи уведомлений:", new Date().toLocaleString());
-//     sendNotifications();
-//   });
-// }
-
 function startDailyNotifications() {
-    cron.schedule("*/30 * * * * *", () => {
-      console.log("✅ [Тест] Запуск уведомлений:", new Date().toLocaleString());
-      sendNotifications();
-    });
-  }
-  
+  cron.schedule("0 10 * * *", () => {
+    console.log("✅ Запуск ежедневной задачи уведомлений:", new Date().toLocaleString());
+    sendNotifications();
+  });
+}
+
 module.exports = startDailyNotifications;
