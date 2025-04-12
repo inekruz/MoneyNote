@@ -211,7 +211,7 @@ router.get("/alltransactions", async (req, res) => {
  *               categoryId:
  *                 type: integer
  *     responses:
- *       200:
+ *       '200':
  *         description: Список транзакций по фильтрам
  *         content:
  *           application/json:
@@ -233,11 +233,12 @@ router.get("/alltransactions", async (req, res) => {
  *                   date:
  *                     type: string
  *                     format: date-time
- *       400:
+ *       '400':
  *         description: Неверный формат данных
- *       500:
+ *       '500':
  *         description: Ошибка на сервере
  */
+
 
 // Получение транзакций с фильтрацией 
 router.post("/transactions", async (req, res) => {
