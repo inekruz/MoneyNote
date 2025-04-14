@@ -36,40 +36,6 @@ const upload = multer({
   }
 });
 
-/**
- * @openapi
- * /user/getUser:
- *   get:
- *     summary: Получение данных о пользователе
- *     description: Получает данные о пользователе на основе токена
- *     responses:
- *       200:
- *         description: Данные о пользователе успешно получены
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 userData:
- *                   type: object
- *                   properties:
- *                     login:
- *                       type: string
- *                     username:
- *                       type: string
- *                     email:
- *                       type: string
- *                     image_path:
- *                       type: string
- *       400:
- *         description: Токен не найден
- *       403:
- *         description: Ошибка при обработке токена
- *       404:
- *         description: Пользователь не найден
- *       500:
- *         description: Ошибка сервера
- */
 
 // Получение данных о пользователе
 router.get("/getUser", (req, res) => {
@@ -106,54 +72,6 @@ router.get("/getUser", (req, res) => {
       }
     });
   });
-
-/**
- * @openapi
- * /user/updateUser:
- *   post:
- *     summary: Обновление данных пользователя
- *     description: Обновляет данные пользователя (username, email, password)
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: Данные успешно обновлены
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 userData:
- *                   type: object
- *                   properties:
- *                     login:
- *                       type: string
- *                     username:
- *                       type: string
- *                     email:
- *                       type: string
- *       400:
- *         description: Нет данных для обновления
- *       404:
- *         description: Пользователь не найден
- *       403:
- *         description: Ошибка при обработке токена
- *       500:
- *         description: Ошибка сервера
- */
 
 // Обновление данных пользователя
 router.post("/updateUser", async (req, res) => {
@@ -215,42 +133,6 @@ router.post("/updateUser", async (req, res) => {
   });
 });
 
-/**
- * @openapi
- * /user/setAvatar:
- *   post:
- *     summary: Обновление аватарки пользователя
- *     description: Заменяет аватарку пользователя
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               avatar:
- *                 type: string
- *                 format: binary
- *     responses:
- *       200:
- *         description: Аватарка успешно обновлена
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 imagePath:
- *                   type: string
- *       400:
- *         description: Токен не найден или аватарка не найдена
- *       403:
- *         description: Ошибка токена
- *       500:
- *         description: Ошибка при сохранении аватарки
- */
-
 // Обновление аватарки пользователя
   router.post("/setAvatar", upload.single('avatar'), (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
@@ -291,31 +173,6 @@ router.post("/updateUser", async (req, res) => {
     });
   });
 
-/**
- * @openapi
- * /user/getAvatar:
- *   get:
- *     summary: Получение аватарки пользователя
- *     description: Получает аватарку пользователя
- *     responses:
- *       200:
- *         description: Аватарка успешно получена
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 image:
- *                   type: string
- *       400:
- *         description: Токен не найден
- *       403:
- *         description: Ошибка токена
- *       404:
- *         description: Аватарка не найдена
- *       500:
- *         description: Ошибка сервера
- */
 // Получение аватарки пользователя
   router.get("/getAvatar", (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];

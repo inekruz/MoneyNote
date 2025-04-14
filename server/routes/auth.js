@@ -59,31 +59,7 @@ async function sendVerificationEmail(email, code) {
   await transporter.sendMail(mailOptions);
 }
 
-/**
- * @openapi
- * /auth/register:
- *   post:
- *     summary: Регистрация нового пользователя
- *     description: Регистрирует нового пользователя в системе с подтверждением через код, отправляемый на email.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               login:
- *                 type: string
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       201:
- *         description: Успешная регистрация, код отправлен на email
- *       500:
- *         description: Ошибка при регистрации
- */
+// Регистрация нового пользователя
 router.post("/register", async (req, res) => {
   const { login, email, password } = req.body;
   const verificationCode = generateCode();
@@ -107,31 +83,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-/**
- * @openapi
- * /auth/login:
- *   post:
- *     summary: Вход пользователя
- *     description: Вход в систему через логин или email, с отправкой кода подтверждения на email.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               identifier:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: Код подтверждения отправлен на email
- *       401:
- *         description: Неверный логин/email или пароль
- *       500:
- *         description: Ошибка при входе
- */
+// Авторизация пользователя
 router.post("/login", async (req, res) => {
   const { identifier, password } = req.body;
   const isEmail = identifier.includes("@");
@@ -162,31 +114,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-/**
- * @openapi
- * /auth/verify-code:
- *   post:
- *     summary: Проверка кода подтверждения
- *     description: Проверяет введенный код подтверждения и выдает JWT токен при успешной проверке.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               identifier:
- *                 type: string
- *               code:
- *                 type: string
- *     responses:
- *       200:
- *         description: Вход выполнен успешно, JWT токен возвращен
- *       400:
- *         description: Неверный код
- *       500:
- *         description: Ошибка подтверждения кода
- */
+// Подтверждение кода
 router.post("/verify-code", async (req, res) => {
   const { identifier, code } = req.body;
   const isEmail = identifier.includes("@");
@@ -215,5 +143,4 @@ router.post("/verify-code", async (req, res) => {
   }
 });
 
-// Экспорт маршрутов для использования в других частях приложения
 module.exports = router;
