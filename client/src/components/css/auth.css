@@ -9,7 +9,7 @@
     width: 100%;
     max-width: 400px;
     border-image: conic-gradient(from var(--angle), aqua, transparent, transparent, aqua, transparent, transparent, aqua) 1;
-	
+	height: 240px;
 	animation: 1s rotate linear infinite;
 }
 
@@ -112,4 +112,29 @@ button:hover {
 
 .code-input:focus {
     background: var(--quaternary-color);
+}
+
+.developer-docs-button-auth {
+    padding: 5px;
+    text-align: center;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    background-color: var(--button-color);
+    color: var(--text-color);
+    border: none;
+    cursor: pointer;
+    font-size: 19px;
+    display: flex;
+    margin-left: 80px;
+    position: absolute;
+  }
+
+.developer-docs-button-auth span {
+    font-size: 15px;
+    margin-left: 5px;
+}
+
+.docs-container {
+    margin-top: 30px;
 }

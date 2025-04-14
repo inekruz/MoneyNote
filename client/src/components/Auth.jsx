@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Notification, notif } from "./notification";
 import { sendNotification } from './sendNotification';
 import { UAParser } from "ua-parser-js";
+import { FaCode } from "react-icons/fa";
 import "./css/auth.css";
 
 
@@ -152,6 +153,10 @@ const Auth = () => {
     inputsRef.current[pastedData.length - 1]?.focus();
   };
 
+  // Переход на страницу документации для разработчиков
+  const handleDeveloperDocsClick = () => {
+    window.open("https://api.minote.ru/docs", "_blank");
+  };
 
   return (
     <div className="auth-container">
@@ -233,6 +238,11 @@ const Auth = () => {
           {isRegister ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться"}
         </p>
       )}
+      <div className="docs-container">
+        <button className="developer-docs-button-auth" onClick={handleDeveloperDocsClick}>
+            <FaCode />  <span>Документация MINOTE</span>
+          </button>
+      </div>
     </div>
   );
 };
