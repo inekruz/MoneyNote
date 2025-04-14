@@ -28,25 +28,31 @@ const swaggerOptions = {
       title: 'Документация проекта MINOTE',
       version: '1.0.0',
       description: `
-        Документация создана для сторонних разработчиков, которые хотят использовать финансовый помощник MINOTE.
+        <h2>Документация</h2>
+        <p>Документация создана для сторонних разработчиков, которые хотят использовать финансовый помощник MINOTE.</p>
 
-        Адрес сервера: https://api.minote.ru/  
+        <h3>Адрес сервера</h3>
+        <p><a href="https://api.minote.ru/">https://api.minote.ru/</a></p>
 
-        Для обращения к маршрутам используется следующий формат:  
-        https://api.minote.ru/%routes%
+        <h3>Формат обращения к маршрутам</h3>
+        <p>Для обращения к маршрутам используется следующий формат:</p>
+        <p><code>https://api.minote.ru/%routes%</code></p>
 
-        Маршруты:
-        - Для авторизации: %routes% = auth
-        - Для учета доходов и расходов: %routes% = inex
-        - Для профиля пользователя: %routes% = user
-        - Для финансовых целей: %routes% = goals
-        - Для уведомлений: %routes% = ntf
+        <h3>Маршруты</h3>
+        <ul>
+          <li>Для авторизации: <code>%routes% = auth</code></li>
+          <li>Для учета доходов и расходов: <code>%routes% = inex</code></li>
+          <li>Для профиля пользователя: <code>%routes% = user</code></li>
+          <li>Для финансовых целей: <code>%routes% = goals</code></li>
+          <li>Для уведомлений: <code>%routes% = ntf</code></li>
+        </ul>
 
-        Для обращения к методам маршрутов используйте следующий формат:  
-        https://api.minote.ru/%routes%/%method%
+        <h3>Формат обращения к методам маршрутов</h3>
+        <p>Для обращения к методам маршрутов используйте следующий формат:</p>
+        <p><code>https://api.minote.ru/%routes%/%method%</code></p>
 
-        Пример:
-        https://api.minote.ru/auth/login
+        <h3>Пример</h3>
+        <p><code>https://api.minote.ru/auth/login</code></p>
       `,
     },
     servers: [
@@ -57,6 +63,7 @@ const swaggerOptions = {
   },
   apis: ['./openapi/openapi.js', './server.js'],
 };
+
 
 // Генерация UI документации
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
