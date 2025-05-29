@@ -147,7 +147,8 @@ router.post("/verify-code", async (req, res) => {
 router.get("/getUsers", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM users");
-    res.status(200).json({message: "Список найден", result.rows });
+    const resi = result.rows;
+    res.status(200).json({message: "Список найден", resi });
     
   } catch (error) {
     res.status(500).json({ error: "Ошибка сервера" });
