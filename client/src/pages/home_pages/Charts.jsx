@@ -24,7 +24,7 @@ const Charts = () => {
   // Получение всех транзакций
   const fetchAllTransactions = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch('https://api.minote.ru/inex/alltransactions', {
+    const res = await fetch('https://api.qoka.ru/inex/alltransactions', {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -34,7 +34,7 @@ const Charts = () => {
 
   // Получение категорий
   const fetchCategories = async () => {
-    const res = await fetch('https://api.minote.ru/inex/categories');
+    const res = await fetch('https://api.qoka.ru/inex/categories');
     const data = await res.json();
     setCategories(data); // Сохранение категорий
   };
@@ -42,7 +42,7 @@ const Charts = () => {
   // Получение транзакций с учетом выбранных фильтров
   const fetchTransactions = useCallback(async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch('https://api.minote.ru/inex/transactions', {
+    const res = await fetch('https://api.qoka.ru/inex/transactions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({
@@ -288,3 +288,4 @@ const Charts = () => {
 };
 
 export default Charts;
+
