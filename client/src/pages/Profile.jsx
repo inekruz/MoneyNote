@@ -26,7 +26,7 @@ const Profile = () => {
       }
 
       try {
-        const response = await fetch("https://api.minote.ru/user/getUser", {
+        const response = await fetch("https://api.qoka.ru/user/getUser", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -65,7 +65,7 @@ const Profile = () => {
   const fetchAvatar = async () => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch("https://api.minote.ru/user/getAvatar", {
+      const response = await fetch("https://api.qoka.ru/user/getAvatar", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -97,7 +97,7 @@ const Profile = () => {
         formData.append("avatar", file);
 
         try {
-          const response = await fetch("https://api.minote.ru/user/setAvatar", {
+          const response = await fetch("https://api.qoka.ru/user/setAvatar", {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -160,7 +160,7 @@ const Profile = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch("https://api.minote.ru/user/updateUser", {
+      const response = await fetch("https://api.qoka.ru/user/updateUser", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -193,7 +193,7 @@ const Profile = () => {
           <div className="avatar-container">
             <img
               className="avatar"
-              src={avatarPreview || `https://api.minote.ru/avatars/${userData.image_path}`}
+              src={avatarPreview || `https://api.qoka.ru/avatars/${userData.image_path}`}
               alt="User Avatar"
             />
             <input
@@ -282,3 +282,4 @@ const Profile = () => {
 };
 
 export default Profile;
+
