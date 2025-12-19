@@ -15,7 +15,7 @@ const Income = () => {
 
   // Загрузка категорий при монтировании компонента
   useEffect(() => {
-    fetch('https://api.minote.ru/inex/categories')
+    fetch('https://api.qoka.ru/inex/categories')
       .then(response => response.json())
       .then(data => setCategories(data)) // Устанавливаем категории
       .catch(error => notif(`${error}`, "error")); // Обработка ошибок
@@ -25,7 +25,7 @@ const Income = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const body = { ...filter }; // Используем текущие фильтры
-    fetch('https://api.minote.ru/inex/transactions', {
+    fetch('https://api.qoka.ru/inex/transactions', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json', 
@@ -54,7 +54,7 @@ const Income = () => {
 
     const data = { type, amount, description, category_id: category };
     // Отправка данных транзакции на сервер
-    fetch('https://api.minote.ru/inex/add', {
+    fetch('https://api.qoka.ru/inex/add', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json', 
@@ -187,3 +187,4 @@ const Income = () => {
 };
 
 export default Income;
+
