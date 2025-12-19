@@ -16,7 +16,7 @@ const Settings = () => {
     const fetchSettings = async () => {
       try {
         // Получаем текущие настройки уведомлений с сервера
-        const res = await fetch('https://api.minote.ru/ntf/getCheck', {
+        const res = await fetch('https://api.qoka.ru/ntf/getCheck', {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}` // Используем токен из localStorage
@@ -25,7 +25,7 @@ const Settings = () => {
 
         if (res.status === 404) {
           // Если настройки не найдены, устанавливаем их по умолчанию
-          await fetch('https://api.minote.ru/ntf/updateCheck', {
+          await fetch('https://api.qoka.ru/ntf/updateCheck', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ const Settings = () => {
 
     try {
       // Отправляем обновленные настройки на сервер
-      await fetch('https://api.minote.ru/ntf/updateCheck', {
+      await fetch('https://api.qoka.ru/ntf/updateCheck', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -118,3 +118,4 @@ const Settings = () => {
 };
 
 export default Settings;
+
