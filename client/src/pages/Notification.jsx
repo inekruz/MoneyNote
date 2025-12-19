@@ -10,7 +10,7 @@ const NotificationPopup = ({ onClose }) => {
   // Функция для получения уведомлений с сервера
   const fetchNotifications = async () => {
     try {
-      const response = await fetch('https://api.minote.ru/ntf/get', {
+      const response = await fetch('https://api.qoka.ru/ntf/get', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -32,7 +32,7 @@ const NotificationPopup = ({ onClose }) => {
   // Функция для отметки уведомлений как прочитанных
   const markNotificationsAsRead = async () => {
     try {
-      const response = await fetch('https://api.minote.ru/ntf/read', {
+      const response = await fetch('https://api.qoka.ru/ntf/read', {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -60,7 +60,7 @@ const NotificationPopup = ({ onClose }) => {
   // Функция для удаления уведомлений
   const handleDelete = async (indexToDelete, id) => {
     try {
-      const response = await fetch(`https://api.minote.ru/ntf/del/${id}`, {
+      const response = await fetch(`https://api.qoka.ru/ntf/del/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -111,3 +111,4 @@ const NotificationPopup = ({ onClose }) => {
 };
 
 export default NotificationPopup;
+
