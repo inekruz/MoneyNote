@@ -57,7 +57,7 @@ const Auth = () => {
       : { identifier, password };
 
     try {
-      const response = await fetch(`https://api.minote.ru/auth/${endpoint}`, {
+      const response = await fetch(`https://api.qoka.ru/auth/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
@@ -83,7 +83,7 @@ const Auth = () => {
     const code = verificationCode.join("");
 
     try {
-      const response = await fetch(`https://api.minote.ru/auth/verify-code`, {
+      const response = await fetch(`https://api.qoka.ru/auth/verify-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier, code }),
@@ -155,7 +155,7 @@ const Auth = () => {
 
   // Переход на страницу документации для разработчиков
   const handleDeveloperDocsClick = () => {
-    window.open("https://api.minote.ru/docs", "_blank");
+    window.open("https://api.qoka.ru/docs", "_blank");
   };
 
   return (
@@ -240,7 +240,7 @@ const Auth = () => {
       )}
       <div className="docs-container">
         <button className="developer-docs-button-auth" onClick={handleDeveloperDocsClick}>
-            <FaCode />  <span>Документация MINOTE</span>
+            <FaCode />  <span>Документация qoka</span>
           </button>
       </div>
     </div>
