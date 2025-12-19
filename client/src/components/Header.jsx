@@ -14,7 +14,7 @@ const Header = ({ onToggleNotifications }) => {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch('https://api.minote.ru/ntf/new', {
+      const response = await fetch('https://api.qoka.ru/ntf/new', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -51,13 +51,13 @@ const Header = ({ onToggleNotifications }) => {
 
   // Переход на страницу документации для разработчиков
   const handleDeveloperDocsClick = () => {
-    window.open("https://api.minote.ru/docs", "_blank");
+    window.open("https://api.qoka.ru/docs", "_blank");
   };
 
   return (
     <header className="header">
       <div className="logo" onClick={() => navigate("/")}>
-        MINOTE
+        qoka
       </div>
 
       <div className="header-buttons">
