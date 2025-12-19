@@ -21,7 +21,7 @@ const Reports = () => {
 
   // Получаем категории из API при монтировании компонента
   useEffect(() => {
-    fetch('https://api.minote.ru/inex/categories')
+    fetch('https://api.qoka.ru/inex/categories')
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error(err));
@@ -33,7 +33,7 @@ const Reports = () => {
     const token = localStorage.getItem('token');
 
     // Отправляем POST-запрос для скачивания отчета
-    fetch('https://api.minote.ru/inex/download-report', {
+    fetch('https://api.qoka.ru/inex/download-report', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -84,7 +84,7 @@ const Reports = () => {
     const token = localStorage.getItem('token');
 
     // Отправляем данные на сервер для загрузки
-    fetch('https://api.minote.ru/inex/upload-report', {
+    fetch('https://api.qoka.ru/inex/upload-report', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -248,3 +248,4 @@ const Reports = () => {
 };
 
 export default Reports;
+
