@@ -4,7 +4,7 @@ import { FiChevronDown } from 'react-icons/fi';
 import './css/goals.css';
 
 // URL для работы с целями
-const API_URL = 'https://api.minote.ru/goals';
+const API_URL = 'https://api.qoka.ru/goals';
 
 const Goals = () => {
   // Состояния для управления целями и вводом данных
@@ -349,3 +349,4 @@ const Goals = () => {
 };
 
 export default Goals;
+
