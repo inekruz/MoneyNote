@@ -62,7 +62,7 @@ const Home = () => {
 
       {/* Футер с информацией о правах */}
       <footer>
-       <b> &copy; 2025 MINOTE </b> Все права защищены
+       <b> &copy; 2025 qoka </b> Все права защищены
       </footer>
 
     </div>
@@ -70,3 +70,4 @@ const Home = () => {
 };
 
 export default Home;
+
