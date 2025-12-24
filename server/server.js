@@ -8,6 +8,7 @@ const InExpRoutes = require('./routes/incomeExp');
 const UserRoutes = require('./routes/profile');
 const GoalsRoutes = require('./routes/goals');
 const NotificationRoutes = require('./routes/notification');
+const CreditRoutes = require('./routes/credit');
 const startDailyNotifications = require('./utils/dailyNotifier');
 
 // Создаем экземпляр приложения Express
@@ -70,6 +71,7 @@ app.use('/inex', InExpRoutes); // Маршруты для учета доход�
 app.use('/user', UserRoutes); // Маршруты для профиля пользователя
 app.use('/goals', GoalsRoutes); // Маршруты для финансовых целей
 app.use('/ntf', NotificationRoutes); // Маршруты для уведомлений
+app.use('/credit', CreditRoutes); // Маршруты для кредита
 
 // Запуск сервера
 app.listen(port, () => {

@@ -6,6 +6,7 @@ import Goals from "./home_pages/Goals";
 import Charts from "./home_pages/Charts";
 import Reports from "./home_pages/Reports";
 import Settings from "./home_pages/Settings";
+import Credit from "./home_pages/Credit";
 import './css/home.css';
 
 
@@ -31,6 +32,8 @@ const Home = () => {
         return <Charts />;
       case 'reports':
         return <Reports />;
+      case 'credit':
+        return <Credit />;
       case 'settings':
         return <Settings />;
       default:
@@ -52,6 +55,7 @@ const Home = () => {
         <button onClick={() => setActiveTab('charts')}>Графики</button>
         <button onClick={() => setActiveTab('goals')}>Цели</button>
         <button onClick={() => setActiveTab('reports')}>Отчеты</button>
+        <button onClick={() => setActiveTab('credit')}>Кредит</button>
         <button onClick={() => setActiveTab('settings')}>Настройки</button>
       </div>
 
