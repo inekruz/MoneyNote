@@ -149,12 +149,12 @@ const Credit = () => {
     }).format(amount);
   };
 
-  const calculateMonthlyPayment = (amount, annualRate, termMonths) => {
-    const monthlyRate = annualRate / 100 / 12;
-    const payment = amount * (monthlyRate * Math.pow(1 + monthlyRate, termMonths)) / 
-                    (Math.pow(1 + monthlyRate, termMonths) - 1);
-    return Math.round(payment);
-  };
+//   const calculateMonthlyPayment = (amount, annualRate, termMonths) => {
+//     const monthlyRate = annualRate / 100 / 12;
+//     const payment = amount * (monthlyRate * Math.pow(1 + monthlyRate, termMonths)) / 
+//                     (Math.pow(1 + monthlyRate, termMonths) - 1);
+//     return Math.round(payment);
+//   };
 
   return (
     <div className="credit-page">
